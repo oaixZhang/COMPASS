@@ -1,0 +1,17 @@
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/linearRegression.py
+#### without ADNI-MEM ADNI-EF data ####
+*** CN regression ***
+best score: 0.5121745203564249
+*** MCI regression ***
+best score: 0.14714174697948135
+*** AD regression ***
+best score: 0.30895530004654187
+#### with ADNI-MEM ADNI-EF data ####
+*** CN regression ***
+best score: 0.5114132199696452
+*** MCI regression ***
+best score: 0.5624245501289895
+*** AD regression ***
+best score: 0.6603679205310411
+
+Process finished with exit code 0

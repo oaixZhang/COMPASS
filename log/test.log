@@ -1,0 +1,352 @@
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svm.py
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.08125105378302563
+best parameters:
+degree 2
+kernel poly
+gamma 1
+coef0 100
+class_weight {0: 1, 1: 10}
+random_state 1
+
+*** MCI ***
+best Pearson score: 0.333067675744828
+best parameters:
+degree 1
+kernel rbf
+gamma 1
+coef0 0
+class_weight balanced
+random_state 1
+
+*** AD ***
+best Pearson score: 0.18867534241685577
+best parameters:
+degree 2
+kernel poly
+gamma 1
+coef0 0
+class_weight balanced
+random_state 1
+
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.16470924434101777
+best parameters:
+degree 2
+kernel poly
+gamma 1
+coef0 1
+class_weight {0: 1, 1: 8}
+random_state 1
+
+*** MCI ***
+best Pearson score: 0.4993906851004771
+best parameters:
+degree 2
+kernel poly
+gamma 0.1
+coef0 100
+class_weight balanced
+random_state 1
+
+*** AD ***
+best Pearson score: 0.4211302133310574
+best parameters:
+degree 1
+kernel poly
+gamma 1
+coef0 0
+class_weight {0: 2, 1: 1}
+random_state 1
+
+
+#####repeat 5######
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svm.py
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.0669117439586768
+best parameters:
+class_weight {0: 1, 1: 10}
+gamma 1
+degree 2
+coef0 1
+kernel poly
+
+*** MCI ***
+best Pearson score: 0.2632360450578554
+best parameters:
+class_weight {0: 1, 1: 3}
+gamma 0.5
+degree 1
+coef0 0
+kernel poly
+
+*** AD ***
+best Pearson score: 0.1501946964284335
+best parameters:
+class_weight balanced
+gamma 1
+degree 2
+coef0 0.1
+kernel poly
+
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.06197244242262061
+best parameters:
+class_weight {0: 1, 1: 8}
+gamma 2
+degree 2
+coef0 0.1
+kernel poly
+
+*** MCI ***
+best Pearson score: 0.4989177892611248
+best parameters:
+class_weight {0: 1, 1: 2}
+gamma 0.1
+degree 2
+coef0 100
+kernel poly
+
+*** AD ***
+best Pearson score: 0.41748494622073856
+best parameters:
+class_weight balanced
+gamma 1
+degree 2
+coef0 100
+kernel poly
+
+####repeat 5 random state=1#####
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svm.py
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.06944375884132162
+best parameters:
+degree 2
+gamma 1
+kernel poly
+class_weight {0: 1, 1: 10}
+coef0 100
+
+*** MCI ***
+best Pearson score: 0.2634804851536697
+best parameters:
+degree 1
+coef0 0
+kernel poly
+class_weight {0: 1, 1: 3}
+gamma 1
+*** AD ***
+best Pearson score: 0.17849840673710354
+best parameters:
+degree 1
+coef0 0
+kernel poly
+class_weight {0: 2, 1: 1}
+gamma 3
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.06317654027389732
+best parameters:
+degree 2
+coef0 10
+kernel poly
+class_weight balanced
+gamma 2
+*** MCI ***
+best Pearson score: 0.4971068007063607
+best parameters:
+degree 2
+coef0 100
+kernel poly
+class_weight {0: 1, 1: 2}
+gamma 0.1
+*** AD ***
+best Pearson score: 0.41999952583388445
+best parameters:
+degree 2
+coef0 100
+kernel poly
+class_weight {0: 2, 1: 1}
+gamma 0.1
+
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svm.py
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.07612191545388998
+best parameters:
+gamma 1
+class_weight {0: 1, 1: 10}
+coef0 10
+kernel poly
+degree 2
+
+*** MCI ***
+best Pearson score: 0.26188515880991214
+best parameters:
+gamma 2
+class_weight {0: 1, 1: 3}
+coef0 0
+kernel poly
+degree 1
+
+*** AD ***
+best Pearson score: 0.16087423107812815
+best parameters:
+gamma 1
+class_weight balanced
+coef0 0
+kernel poly
+degree 2
+
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.07770907200288205
+best parameters:
+gamma 2
+class_weight balanced
+coef0 10
+kernel poly
+degree 2
+
+*** MCI ***
+best Pearson score: 0.4966192284868625
+best parameters:
+gamma 0.1
+class_weight {0: 1, 1: 2}
+coef0 100
+kernel poly
+degree 2
+
+*** AD ***
+best Pearson score: 0.3968503602338054
+best parameters:
+gamma 0.1
+class_weight {0: 2, 1: 1}
+coef0 100
+kernel poly
+degree 2
+
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.08720904424495607
+best parameters:
+gamma 1
+class_weight {0: 1, 1: 10}
+coef0 100
+kernel poly
+degree 2
+
+*** MCI ***
+best Pearson score: 0.2625139987604985
+best parameters:
+gamma 1
+class_weight {0: 1, 1: 3}
+coef0 0
+kernel poly
+degree 1
+
+*** AD ***
+best Pearson score: 0.1562786026864094
+best parameters:
+gamma 0.1
+class_weight {0: 2, 1: 1}
+coef0 100
+kernel poly
+degree 2
+
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.06728287292998067
+best parameters:
+gamma 2
+class_weight balanced
+coef0 10
+kernel poly
+degree 2
+
+*** MCI ***
+best Pearson score: 0.48229788804808743
+best parameters:
+gamma 0.1
+class_weight {0: 1, 1: 2}
+coef0 100
+kernel poly
+degree 2
+
+*** AD ***
+best Pearson score: 0.3937979786996598
+best parameters:
+gamma 0.1
+class_weight {0: 2, 1: 1}
+coef0 100
+kernel poly
+degree 2
+
+Process finished with exit code 0
+
+
+
+
+D:\Anaconda3\python.exe D:/PycharmProjects/COMPASS/svm_backup.py
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.07904324919466689
+best parameters:
+coef0 100
+degree 2
+kernel poly
+gamma 1
+class_weight {0: 1, 1: 10}
+*** MCI ***
+best Pearson score: 0.2630534488848994
+best parameters:
+coef0 0
+degree 1
+kernel poly
+gamma 0.5
+class_weight {0: 1, 1: 3}
+*** AD ***
+best Pearson score: 0.16180901045780577
+best parameters:
+coef0 100
+degree 2
+kernel poly
+gamma 0.1
+class_weight {0: 2, 1: 1}
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.08277042634298898
+best parameters:
+coef0 0.1
+degree 2
+kernel poly
+gamma 2
+class_weight {0: 1, 1: 8}
+*** MCI ***
+best Pearson score: 0.4818364216216304
+best parameters:
+coef0 100
+degree 2
+kernel poly
+gamma 0.1
+class_weight {0: 1, 1: 2}
+*** AD ***
+best Pearson score: 0.4263178519091068
+best parameters:
+coef0 100
+degree 2
+kernel poly
+gamma 0.1
+class_weight {0: 2, 1: 1}
+
+Process finished with exit code 0
+
+
+
+
+

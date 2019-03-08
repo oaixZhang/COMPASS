@@ -1,0 +1,28 @@
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svr.py
+#### SVR RBF kernel ####
+*** reg_CN regression RBF kernel ***
+best Pearson score reg_CN : 0.5118844491990971
+best parameters:
+gamma 0.1
+*** reg_MCI regression RBF kernel ***
+best Pearson score reg_MCI : 0.16169467036319038
+best parameters:
+gamma 0.1
+*** reg_AD regression RBF kernel ***
+best Pearson score reg_AD : 0.25203584172291943
+best parameters:
+gamma 1
+*** reg_CN_extra_data regression RBF kernel ***
+best Pearson score reg_CN_extra_data : 0.5045306639156755
+best parameters:
+gamma 0.1
+*** reg_MCI_extra_data regression RBF kernel ***
+best Pearson score reg_MCI_extra_data : 0.5619716473991031
+best parameters:
+gamma 1
+*** reg_AD_extra_data regression RBF kernel ***
+best Pearson score reg_AD_extra_data : 0.5893466637074803
+best parameters:
+gamma 1
+
+Process finished with exit code 0

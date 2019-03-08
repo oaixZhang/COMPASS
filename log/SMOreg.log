@@ -1,0 +1,65 @@
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svr.py
+#### SMOreg ####
+*** reg_CN regression ***
+best Pearson score reg_CN SMOregE1: 0.5149836504785779
+best parameters:
+coef0 10
+gamma 0.1
+*** reg_MCI regression ***
+best Pearson score reg_MCI SMOregE1: 0.16436322646919269
+best parameters:
+coef0 0
+gamma 1
+*** reg_AD regression ***
+best Pearson score reg_AD SMOregE1: 0.30631502157020396
+best parameters:
+coef0 100
+gamma 10
+*** reg_CN_extra_data regression ***
+best Pearson score reg_CN_extra_data SMOregE1: 0.5161506182620192
+best parameters:
+coef0 0
+gamma 10
+*** reg_MCI_extra_data regression ***
+best Pearson score reg_MCI_extra_data SMOregE1: 0.5547850819369885
+best parameters:
+coef0 0.1
+gamma 1
+*** reg_AD_extra_data regression ***
+best Pearson score reg_AD_extra_data SMOregE1: 0.6743013565222076
+best parameters:
+coef0 10
+gamma 10
+*** reg_CN regression ***
+best Pearson score reg_CN SMOregE2: 0.5131236880689531
+best parameters:
+coef0 100
+gamma 0.1
+*** reg_MCI regression ***
+best Pearson score reg_MCI SMOregE2: 0.1612493489435872
+best parameters:
+coef0 10
+gamma 0.1
+*** reg_AD regression ***
+best Pearson score reg_AD SMOregE2: 0.3092484851113513
+best parameters:
+coef0 10
+gamma 0.1
+*** reg_CN_extra_data regression ***
+best Pearson score reg_CN_extra_data SMOregE2: 0.5175584314945222
+best parameters:
+coef0 10
+gamma 0.1
+*** reg_MCI_extra_data regression ***
+best Pearson score reg_MCI_extra_data SMOregE2: 0.5776666256856764
+best parameters:
+coef0 100
+gamma 10
+*** reg_AD_extra_data regression ***
+best Pearson score reg_AD_extra_data SMOregE2: 0.6723685712976082
+best parameters:
+coef0 100
+gamma 0.1
+*** reg_CN regression ***
+
+Process finished with exit code -1

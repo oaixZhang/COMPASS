@@ -1,0 +1,9 @@
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.08360447110065516
+best parameters:
+class_weight balanced
+degree 1
+gamma 10
+coef0 0
+kernel rbf
