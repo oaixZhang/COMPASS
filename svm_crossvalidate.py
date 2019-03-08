@@ -51,7 +51,7 @@ def cn_without_extra_data():
               'gamma': [0.1, 1, 10, 100],
               'class_weight': ['balanced', {0: 1, 1: 8}, {0: 1, 1: 10}, {0: 1, 1: 12}]}
     scoring = make_scorer(cal_pearson)
-    cv = RepeatedKFold(n_splits=4, n_repeats=5, random_state=0)
+    cv = RepeatedKFold(n_splits=4, n_repeats=1, random_state=0)
     gridcn = GridSearchCV(svc_CN, params, scoring=scoring, cv=cv, return_train_score=False, iid=True)
     gridcn.fit(X_CN, y_CN)
     cn = gridcn.best_estimator_
@@ -87,7 +87,7 @@ def mci_without_extra_data():
               'gamma': [0.1, 1, 10, 100],
               'class_weight': ['balanced', {0: 1, 1: 1}, {0: 1, 1: 2}, {0: 1, 1: 3}]}
     scoring = make_scorer(cal_pearson)
-    cv = RepeatedKFold(n_splits=10, n_repeats=5)
+    cv = RepeatedKFold(n_splits=10, n_repeats=1)
     grid = GridSearchCV(svc_MCI, param_grid=params, scoring=scoring, cv=cv, return_train_score=False, iid=True)
     grid = grid.fit(X_MCI, y_MCI)
     mci = grid.best_estimator_
@@ -120,7 +120,7 @@ def ad_without_extra_data():
               'gamma': [0.1, 1, 10, 100],
               'class_weight': ['balanced', {0: 1, 1: 1}, {0: 1, 1: 2}, {0: 1, 1: 3}, {0: 2, 1: 1}, {0: 3, 1: 1}]}
     scoring = make_scorer(cal_pearson)
-    cv = RepeatedKFold(n_splits=10, n_repeats=5, random_state=0)
+    cv = RepeatedKFold(n_splits=10, n_repeats=1, random_state=0)
     gridad = GridSearchCV(svc_AD, params, scoring=scoring, cv=cv, return_train_score=False, iid=True)
     gridad.fit(X_AD, y_AD)
     ad = gridad.best_estimator_
@@ -157,7 +157,7 @@ def cn_with_extra_data():
               'gamma': [0.1, 1, 10, 100],
               'class_weight': ['balanced', {0: 1, 1: 6}, {0: 1, 1: 8}, {0: 1, 1: 10}, {0: 1, 1: 12}]}
     scoring = make_scorer(cal_pearson)
-    cv = RepeatedKFold(n_splits=4, n_repeats=5, random_state=0)
+    cv = RepeatedKFold(n_splits=4, n_repeats=1, random_state=0)
     gridcn = GridSearchCV(svc_CN, params, scoring=scoring, cv=cv, return_train_score=False, iid=True)
     gridcn.fit(X_CN, y_CN)
     cn = gridcn.best_estimator_
@@ -192,7 +192,7 @@ def mci_with_extra_data():
               'class_weight': ['balanced', {0: 1, 1: 1}, {0: 1, 1: 2}, {0: 1, 1: 3}, {0: 2, 1: 1}]}
     scoring = make_scorer(cal_pearson)
     # 10 fold grid search
-    cv = RepeatedKFold(n_splits=10, n_repeats=5, random_state=0)
+    cv = RepeatedKFold(n_splits=10, n_repeats=1, random_state=0)
     grid = GridSearchCV(svc_MCI, param_grid=params, scoring=scoring, cv=cv, return_train_score=False, iid=True)
     grid = grid.fit(X_MCI, y_MCI)
     mci = grid.best_estimator_
@@ -226,7 +226,7 @@ def ad_with_extra_data():
               'gamma': [0.1, 1, 10, 100],
               'class_weight': ['balanced', {0: 1, 1: 1}, {0: 1, 1: 2}, {0: 1, 1: 3}, {0: 2, 1: 1}, {0: 3, 1: 1}]}
     scoring = make_scorer(cal_pearson)
-    cv = RepeatedKFold(n_splits=10, n_repeats=5, random_state=0)
+    cv = RepeatedKFold(n_splits=10, n_repeats=1, random_state=0)
     gridad = GridSearchCV(svc_AD, params, scoring=scoring, cv=cv, return_train_score=False, iid=True)
     gridad.fit(X_AD, y_AD)
     ad = gridad.best_estimator_
@@ -240,10 +240,10 @@ def ad_with_extra_data():
 
 if __name__ == "__main__":
     print('#### without ADNI-MEM ADNI-EF data ####')
-    # cn_without_extra_data()
+    cn_without_extra_data()
     mci_without_extra_data()
-    # ad_without_extra_data()
-    # print('#### with ADNI-MEM ADNI-EF data ####')
-    # cn_with_extra_data()
-    # mci_with_extra_data()
-    # ad_with_extra_data()
+    ad_without_extra_data()
+    print('#### with ADNI-MEM ADNI-EF data ####')
+    cn_with_extra_data()
+    mci_with_extra_data()
+    ad_with_extra_data()

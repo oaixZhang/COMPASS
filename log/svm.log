@@ -3,7 +3,18 @@
 best Pearson score: 0.08360447110065516
 best parameters:
 class_weight balanced
+kernel rbf
 degree 1
 gamma 10
 coef0 0
-kernel rbf
+
+
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.09359823274190625
+best parameters:
+gamma 100
+coef0 1
+kernel poly
+degree 2
+class_weight {0: 1, 1: 6}
