@@ -18,3 +18,59 @@ coef0 1
 kernel poly
 degree 2
 class_weight {0: 1, 1: 6}
+
+
+
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svm_crossvalidate.py
+#### without ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.049956845332178215
+best parameters:
+coef0 0
+class_weight balanced
+kernel rbf
+gamma 10
+degree 1
+*** MCI ***
+best Pearson score: 0.25871538192329624
+best parameters:
+coef0 0
+class_weight {0: 1, 1: 3}
+kernel poly
+gamma 1
+degree 1
+*** AD ***
+best Pearson score: 0.12226729843251505
+best parameters:
+coef0 0
+class_weight balanced
+kernel poly
+gamma 100
+degree 1
+#### with ADNI-MEM ADNI-EF data ####
+*** CN ***
+best Pearson score: 0.016099881605167277
+best parameters:
+coef0 1
+class_weight {0: 1, 1: 6}
+kernel poly
+gamma 100
+degree 2
+*** MCI ***
+best Pearson score: 0.479491544153005
+best parameters:
+coef0 0
+class_weight {0: 1, 1: 2}
+kernel poly
+gamma 100
+degree 1
+*** AD ***
+best Pearson score: 0.390047840585935
+best parameters:
+coef0 0
+class_weight {0: 3, 1: 1}
+kernel poly
+gamma 100
+degree 1
+
+Process finished with exit code 0
