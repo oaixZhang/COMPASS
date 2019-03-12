@@ -66,8 +66,10 @@ if __name__ == '__main__':
     # for train, test in rkf.split(x):
     #     print('train:', train, "test:", test)
 
-    rskf = RepeatedStratifiedKFold(n_splits=4, n_repeats=1, random_state=0)
-    for train_index, test_index in rskf.split([0, 1, 2, 3]):
-        print('train', train_index)
-        print('test', test_index)
-    RepeatedKFold
+    # rskf = RepeatedStratifiedKFold(n_splits=4, n_repeats=1, random_state=0)
+    # for train_index, test_index in rskf.split([0, 1, 2, 3]):
+    #     print('train', train_index)
+    #     print('test', test_index)
+    a = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    b=a[0]*1+a[1]*2
+    print(b)

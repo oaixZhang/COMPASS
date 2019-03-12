@@ -1,0 +1,75 @@
+repeat=1,random_state=0
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svm_crossvalidate.py
+#### without ADNI-MEM ADNI-EF data ####
+*** clf_CN ***
+best Pearson score: 0.09095783597933123
+best parameters:  {'coef0': 1, 'gamma': 10, 'C': 0.1, 'degree': 2, 'class_weight': {0: 1, 1: 8}, 'kernel': 'poly'}
+
+*** clf_CN kernel=rbf ***
+best Pearson score: 0.06687313771133396
+best parameters:
+gamma 1
+class_weight {0: 1, 1: 10}
+
+*** clf_MCI kernel=poly ***
+best Pearson score: 0.26257950164657384
+best parameters:
+coef0 0
+degree 1
+class_weight balanced
+gamma 10
+
+*** clf_MCI kernel=rbf ***
+best Pearson score: 0.2703231820319045
+best parameters:
+gamma 0.1
+class_weight balanced
+
+*** clf_AD kernel=poly ***
+best Pearson score: 0.20712439479884295
+best parameters:
+coef0 10
+degree 2
+class_weight {0: 2, 1: 1}
+gamma 0.1
+
+*** clf_AD kernel=rbf ***
+best Pearson score: 0.03934276414058324
+best parameters:
+gamma 100
+class_weight {0: 1, 1: 1}
+
+#### with ADNI-MEM ADNI-EF data ####
+*** clf_CN_extra_data ***
+best Pearson score: 0.14893529319864154
+best parameters:  {'coef0': 100, 'gamma': 0.01, 'C': 1000, 'degree': 1, 'class_weight': {0: 1, 1: 8}, 'kernel': 'poly'}
+
+*** clf_MCI_extra_data kernel=poly ***
+best Pearson score: 0.49913510442265724
+best parameters:
+coef0 100
+degree 2
+class_weight balanced
+gamma 0.1
+
+*** clf_MCI_extra_data kernel=rbf ***
+best Pearson score: 0.47905325625011724
+best parameters:
+gamma 1
+class_weight balanced
+
+*** clf_AD_extra_data kernel=poly ***
+best Pearson score: 0.36036502813029064
+best parameters:
+coef0 0
+degree 1
+class_weight {0: 2, 1: 1}
+gamma 100
+
+*** clf_AD_extra_data kernel=rbf ***
+best Pearson score: 0.33159932549724064
+best parameters:
+gamma 0.1
+class_weight {0: 2, 1: 1}
+
+Process finished with exit code 0

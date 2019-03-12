@@ -95,7 +95,7 @@ def cn_without_extra_data():
     y = CN.pop('DECLINED').values
     X = MinMaxScaler().fit_transform(CN.values)
 
-    rskf = RepeatedStratifiedKFold(n_splits=4, n_repeats=5, random_state=0)
+    rskf = RepeatedStratifiedKFold(n_splits=4, n_repeats=1, random_state=0)
 
     poly_score, poly_params = poly_kernel(X, y, rskf)
     print("best score:", poly_score)
@@ -117,7 +117,7 @@ def mci_without_extra_data():
     y = MCI.pop('DECLINED').values
     scaler = MinMaxScaler(feature_range=(0, 1))
     X = scaler.fit_transform(MCI.values)
-    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=5, random_state=1)
+    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=1, random_state=1)
 
     poly_score, poly_params = poly_kernel(X, y, rskf)
     print("best score:", poly_score)
@@ -139,7 +139,7 @@ def ad_without_extra_data():
     y = AD.pop('DECLINED')
     scaler = MinMaxScaler(feature_range=(0, 1))
     X = scaler.fit_transform(AD.values)
-    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=5, random_state=1)
+    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=1, random_state=1)
 
     poly_score, poly_params = poly_kernel(X, y, rskf)
     print("best score:", poly_score)
@@ -161,7 +161,7 @@ def cn_with_extra_data():
     CN = pd.read_csv('./data/clf_CN_extra_data.csv')
     y = CN.pop('DECLINED')
     X = MinMaxScaler(feature_range=(0, 1)).fit_transform(CN.values)
-    rskf = RepeatedStratifiedKFold(n_splits=4, n_repeats=5, random_state=1)
+    rskf = RepeatedStratifiedKFold(n_splits=4, n_repeats=1, random_state=1)
 
     poly_score, poly_params = poly_kernel(X, y, rskf)
     print("best score:", poly_score)
@@ -182,7 +182,7 @@ def mci_with_extra_data():
     MCI = pd.read_csv('./data/clf_MCI_extra_Data.csv')
     y = MCI.pop('DECLINED')
     X = MinMaxScaler(feature_range=(0, 1)).fit_transform(MCI.values)
-    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=5, random_state=1)
+    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=1, random_state=1)
 
     poly_score, poly_params = poly_kernel(X, y, rskf)
     print("best score:", poly_score)
@@ -203,7 +203,7 @@ def ad_with_extra_data():
     AD = pd.read_csv('./data/clf_AD_extra_data.csv')
     y = AD.pop('DECLINED')
     X = MinMaxScaler(feature_range=(0, 1)).fit_transform(AD.values)
-    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=5, random_state=1)
+    rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=1, random_state=1)
 
     poly_score, poly_params = poly_kernel(X, y, rskf)
     print("best score:", poly_score)

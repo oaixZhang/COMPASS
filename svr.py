@@ -171,11 +171,11 @@ def SMOregRBFKernel(file):
     scoring = make_scorer(cal_pearson)
     grid = GridSearchCV(svr, params, scoring=scoring, cv=cv, return_train_score=False, iid=True)
     grid.fit(X, y)
-    mci = grid.best_estimator_
+    result = grid.best_estimator_
     print('best Pearson score {} :'.format(file), grid.best_score_)
     print('best parameters:')
     for key in params.keys():
-        print(key, mci.get_params()[key])
+        print(key, result.get_params()[key])
     pd.DataFrame(grid.cv_results_).to_csv('./grid/grid_{}_RBF.csv'.format(file), index=0)
 
 
