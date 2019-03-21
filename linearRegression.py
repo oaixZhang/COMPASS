@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import make_scorer
-from sklearn.model_selection import RepeatedKFold, GridSearchCV,cross_validate
+from sklearn.model_selection import RepeatedKFold, GridSearchCV, cross_validate
 from sklearn.preprocessing import MinMaxScaler
 
 import dataprocess
@@ -108,18 +108,26 @@ def lr_AD_extra_data():
     print('best score:', grid.best_score_)
     # print('best params:', ad.get_params())
 
+
 def lr():
     print('*** linear regression ***')
-    data = dataprocess.data4regression()
+    # data = dataprocess.data4regression()
+    data = pd.read_csv('./data_genetic/data_all_features.csv')
+    # original data
+    CN = data[data.DX_bl == 1].copy()
+    # data = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    data = CN.drop(columns=['RID', 'DX_bl','TOMM40_A1', 'TOMM40_A2','DECLINED'])
+    # data.dropna(inplace=True)
     y = data.pop('deltaMMSE').values
     X = MinMaxScaler().fit_transform(data.values)
     lr = LinearRegression()
     cv = RepeatedKFold(n_splits=10, n_repeats=5, random_state=0)
     scoring = make_scorer(cal_pearson)
-    grid = GridSearchCV(lr, {}, scoring=scoring, cv=cv, return_train_score=False, iid=True)
-    grid.fit(X, y)
-    result = grid.best_estimator_
-    print('best score:', grid.best_score_)
+    results = cross_validate(lr,X,y,scoring=scoring,cv=cv,return_train_score=False)
+    print('scores:', results['test_score'])
+    print('mean score:', results['test_score'].mean())
+
+
 
 if __name__ == "__main__":
     # print('#### without ADNI-MEM ADNI-EF data ####')

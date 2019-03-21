@@ -5,7 +5,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVR
 
 from svm_crossvalidate import cal_pearson
-import svm_crossvalidate, svm_oversampling
 
 
 def svr_CN():
@@ -179,19 +178,93 @@ def SMOregRBFKernel(file):
     pd.DataFrame(grid.cv_results_).to_csv('./grid/grid_{}_RBF.csv'.format(file), index=0)
 
 
+def svr(data, group):
+    print('*** %s svr regression ***' % group)
+    y = data.pop('deltaMMSE').values
+    X = MinMaxScaler().fit_transform(data.values)
+    svr = SVR()
+    params = {'coef0': [0, 0.1, 1, 10, 100, 1000], 'degree': [1,2], 'kernel': ['poly'],
+              'gamma': [100, 0.1, 1, 10, 0.01, 1000], 'C': [0.1, 1, 10, 100, 0.01, 1000]}
+    # params = {'kernel': ['rbf'], 'gamma': [100, 0.1, 1, 10], 'C': [0.1, 0.01, 1, 10, 100,1000]}
+    cv = RepeatedKFold(n_splits=5, n_repeats=1, random_state=9)
+    scoring = make_scorer(cal_pearson)
+    grid = GridSearchCV(svr, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
+
+    grid.fit(X, y)
+    print('best Pearson score:', grid.best_score_)
+    print('best parameters: ', grid.best_params_, '\n')
+
+
 if __name__ == "__main__":
     # print('#### SMOreg ####')
-    for i in range(2, 4):
-        SMOregPolyKernel('reg_CN', i)
-        SMOregPolyKernel('reg_MCI', i)
-        SMOregPolyKernel('reg_AD', i)
-        SMOregPolyKernel('reg_CN_extra_data', i)
-        SMOregPolyKernel('reg_MCI_extra_data', i)
-        SMOregPolyKernel('reg_AD_extra_data', i)
-    print('#### SVR RBF kernel ####')
-    SMOregRBFKernel('reg_CN')
-    SMOregRBFKernel('reg_MCI')
-    SMOregRBFKernel('reg_AD')
-    SMOregRBFKernel('reg_CN_extra_data')
-    SMOregRBFKernel('reg_MCI_extra_data')
-    SMOregRBFKernel('reg_AD_extra_data')
+    # for i in range(2, 4):
+    #     SMOregPolyKernel('reg_CN', i)
+    #     SMOregPolyKernel('reg_MCI', i)
+    #     SMOregPolyKernel('reg_AD', i)
+    #     SMOregPolyKernel('reg_CN_extra_data', i)
+    #     SMOregPolyKernel('reg_MCI_extra_data', i)
+    #     SMOregPolyKernel('reg_AD_extra_data', i)
+    # print('#### SVR RBF kernel ####')
+    # SMOregRBFKernel('reg_CN')
+    # SMOregRBFKernel('reg_MCI')
+    # SMOregRBFKernel('reg_AD')
+    # SMOregRBFKernel('reg_CN_extra_data')
+    # SMOregRBFKernel('reg_MCI_extra_data')
+    # SMOregRBFKernel('reg_AD_extra_data')
+    data = pd.read_csv('./data_genetic/data_all_features.csv')
+    # original data
+    # CN = data[data.DX_bl == 1].copy()
+    # CN_o = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(CN_o, 'CN with original data')
+    #
+    # MCI = data[data.DX_bl == 2].copy()
+    # MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(MCI_o, 'MCI with original data')
+
+    AD = data[data.DX_bl == 3].copy()
+    AD_o = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    print(AD_o)
+    svr(AD_o, 'AD with original data')
+
+    # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(all_o, 'overall with original data')
+    #
+    # # with ADNI features
+    # CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    # svr(CN_ADNI, 'CN with ADNI features')
+    #
+    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    # svr(MCI_ADNI, 'MCI with ADNI features')
+
+    AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    print(AD_ADNI)
+    svr(AD_ADNI, 'AD with ADNI features')
+
+    # overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    # svr(overall_ADNI, 'overall with ADNI features')
+
+    # # with genetic features
+    # CN_genetic = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(CN_genetic, 'CN with genetic features')
+    #
+    # MCI_genetic = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(MCI_genetic, 'MCI with genetic features')
+    #
+    # AD_genetic = AD.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(AD_genetic, 'AD with genetic features')
+    #
+    # overall_genetic = data.drop(columns=['RID', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(overall_genetic, 'overall with genetic features')
+    #
+    # # plus genetic features
+    # CN = CN.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # svr(CN, 'CN with all features')
+    #
+    # MCI = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # svr(MCI, 'MCI with all features')
+    #
+    # AD = AD.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # svr(AD, 'AD with all features')
+    #
+    # overall = data.drop(columns=['RID', 'DECLINED'])
+    # svr(overall, 'overall with all features')

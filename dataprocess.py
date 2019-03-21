@@ -135,12 +135,34 @@ def extra4regression():
     return df
 
 
+def data_genetic():
+    # samples with all features, suitable for regression
+    data = pd.read_csv('./data/data_processed.csv')
+    deltaMMSE = data['MMSE24'] - data['MMSE']
+    data['deltaMMSE'] = deltaMMSE
+    data.pop('MMSE24')
+    # genetic features
+    df = pd.read_csv('./data_genetic/TOMM40.csv')
+    data = pd.merge(data, df, how='inner', on='RID')
+    # ADNI MEM EF features
+    df = pd.read_csv('./data_genetic/ADNI_MEM_EF.csv')
+    data = pd.merge(data, df, how='left', on='RID')
+    # declined for clf
+    data['DECLINED'] = [int(delta <= -3) for delta in data['deltaMMSE']]
+    data.to_csv('./data_genetic/data_all_features.csv', index=0)
+
+    # data.drop(columns=['TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'], inplace=True)
+    # CN = data[data.DX_bl == 1].copy()
+    # # CN.drop(columns=['RID', 'DX_bl'], inplace=True)
+    # CN.to_csv('./data_genetic/CN.csv', index=0)
+
 if __name__ == '__main__':
-    preprocess()
-    data4classification()
-    split4classification()
-    data4regression()
-    split4regression()
-    merge_mem_ef_data()
-    extra4classification()
-    extra4regression()
+    # preprocess()
+    # data4classification()
+    # split4classification()
+    # data4regression()
+    # split4regression()
+    # merge_mem_ef_data()
+    # extra4classification()
+    # extra4regression()
+    data_genetic()

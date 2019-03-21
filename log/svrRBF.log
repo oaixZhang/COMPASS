@@ -1,28 +1,31 @@
-D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svr.py
-#### SVR RBF kernel ####
-*** reg_CN regression RBF kernel ***
-best Pearson score reg_CN : 0.5118844491990971
-best parameters:
-gamma 0.1
-*** reg_MCI regression RBF kernel ***
-best Pearson score reg_MCI : 0.16169467036319038
-best parameters:
-gamma 0.1
-*** reg_AD regression RBF kernel ***
-best Pearson score reg_AD : 0.25203584172291943
-best parameters:
-gamma 1
-*** reg_CN_extra_data regression RBF kernel ***
-best Pearson score reg_CN_extra_data : 0.5045306639156755
-best parameters:
-gamma 0.1
-*** reg_MCI_extra_data regression RBF kernel ***
-best Pearson score reg_MCI_extra_data : 0.5619716473991031
-best parameters:
-gamma 1
-*** reg_AD_extra_data regression RBF kernel ***
-best Pearson score reg_AD_extra_data : 0.5893466637074803
-best parameters:
-gamma 1
+*** CN with original data svr regression ***
+best Pearson score: 0.5958505187368212
+best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
 
-Process finished with exit code 0
+*** MCI with original data svr regression ***
+best Pearson score: 0.1577226739655673
+best parameters:  {'kernel': 'rbf', 'gamma': 1, 'C': 0.01} 
+
+*** AD with original data svr regression ***
+best Pearson score: 0.16247589643347277
+best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 10} 
+
+*** overall with original data svr regression ***
+best Pearson score: 0.4155057075889309
+best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 0.1} 
+
+*** CN with ADNI features svr regression ***
+best Pearson score: 0.5707332697376392
+best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 1} 
+
+*** MCI with ADNI features svr regression ***
+best Pearson score: 0.5254070116828654
+best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
+
+*** AD with ADNI features svr regression ***
+best Pearson score: 0.6334838799008828
+best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
+
+*** overall with ADNI features svr regression ***
+best Pearson score: 0.6960049579706202
+best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
