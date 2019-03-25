@@ -182,11 +182,12 @@ def svr(data, group):
     print('*** %s svr regression ***' % group)
     y = data.pop('deltaMMSE').values
     X = MinMaxScaler().fit_transform(data.values)
+    # print('X.shape: ', X.shape, 'y.shape: ', y.shape)
     svr = SVR()
-    params = {'coef0': [0, 0.1, 1, 10, 100, 1000], 'degree': [1,2], 'kernel': ['poly'],
-              'gamma': [100, 0.1, 1, 10, 0.01, 1000], 'C': [0.1, 1, 10, 100, 0.01, 1000]}
+    params = {'coef0': [0, 0.1, 1, 10, 100, 0.01], 'degree': [2], 'kernel': ['poly'],
+              'gamma': [0.1, 1, 10], 'C': [0.1, 1, 10, 100]}
     # params = {'kernel': ['rbf'], 'gamma': [100, 0.1, 1, 10], 'C': [0.1, 0.01, 1, 10, 100,1000]}
-    cv = RepeatedKFold(n_splits=5, n_repeats=1, random_state=9)
+    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
     scoring = make_scorer(cal_pearson)
     grid = GridSearchCV(svr, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
 
@@ -213,35 +214,27 @@ if __name__ == "__main__":
     # SMOregRBFKernel('reg_AD_extra_data')
     data = pd.read_csv('./data_genetic/data_all_features.csv')
     # original data
-    # CN = data[data.DX_bl == 1].copy()
-    # CN_o = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # svr(CN_o, 'CN with original data')
-    #
-    # MCI = data[data.DX_bl == 2].copy()
-    # MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # svr(MCI_o, 'MCI with original data')
-
+    CN = data[data.DX_bl == 1].copy()
+    CN_o = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    svr(CN_o, 'CN with original data')
+    MCI = data[data.DX_bl == 2].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    svr(MCI_o, 'MCI with original data')
     AD = data[data.DX_bl == 3].copy()
     AD_o = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    print(AD_o)
     svr(AD_o, 'AD with original data')
+    all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    svr(all_o, 'overall with original data')
 
-    # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # svr(all_o, 'overall with original data')
-    #
-    # # with ADNI features
-    # CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # svr(CN_ADNI, 'CN with ADNI features')
-    #
-    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # svr(MCI_ADNI, 'MCI with ADNI features')
-
+    # with ADNI features
+    CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    svr(CN_ADNI, 'CN with ADNI features')
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    svr(MCI_ADNI, 'MCI with ADNI features')
     AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    print(AD_ADNI)
     svr(AD_ADNI, 'AD with ADNI features')
-
-    # overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # svr(overall_ADNI, 'overall with ADNI features')
+    overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    svr(overall_ADNI, 'overall with ADNI features')
 
     # # with genetic features
     # CN_genetic = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])

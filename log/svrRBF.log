@@ -1,31 +1,35 @@
+D:\Anaconda3\envs\tensorflow\python.exe D:/PycharmProjects/COMPASS/svr.py
 *** CN with original data svr regression ***
-best Pearson score: 0.5958505187368212
-best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
+best Pearson score: 0.5815804386894385
+best parameters:  {'C': 1, 'kernel': 'rbf', 'gamma': 0.1}
 
 *** MCI with original data svr regression ***
-best Pearson score: 0.1577226739655673
-best parameters:  {'kernel': 'rbf', 'gamma': 1, 'C': 0.01} 
+best Pearson score: 0.16705304926800665
+best parameters:  {'C': 10, 'kernel': 'rbf', 'gamma': 10}
 
 *** AD with original data svr regression ***
-best Pearson score: 0.16247589643347277
-best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 10} 
+best Pearson score: 0.24187506064041756
+best parameters:  {'C': 10, 'kernel': 'rbf', 'gamma': 0.1}
 
 *** overall with original data svr regression ***
-best Pearson score: 0.4155057075889309
-best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 0.1} 
+best Pearson score: 0.4169388588080692
+best parameters:  {'C': 1, 'kernel': 'rbf', 'gamma': 0.1}
 
 *** CN with ADNI features svr regression ***
-best Pearson score: 0.5707332697376392
-best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 1} 
+best Pearson score: 0.5701643505995883
+best parameters:  {'C': 1, 'kernel': 'rbf', 'gamma': 0.1}
 
 *** MCI with ADNI features svr regression ***
-best Pearson score: 0.5254070116828654
-best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
+best Pearson score: 0.5381198659534175
+best parameters:  {'C': 100, 'kernel': 'rbf', 'gamma': 0.1}
 
 *** AD with ADNI features svr regression ***
-best Pearson score: 0.6334838799008828
-best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
+best Pearson score: 0.6550760103108417
+best parameters:  {'C': 100, 'kernel': 'rbf', 'gamma': 0.1}
 
 *** overall with ADNI features svr regression ***
-best Pearson score: 0.6960049579706202
-best parameters:  {'kernel': 'rbf', 'gamma': 0.1, 'C': 100} 
+best Pearson score: 0.6893377749582519
+best parameters:  {'C': 100, 'kernel': 'rbf', 'gamma': 0.1}
+
+
+Process finished with exit code 0
