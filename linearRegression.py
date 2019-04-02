@@ -159,12 +159,12 @@ if __name__ == "__main__":
     overall_genetic = data.drop(columns=['RID', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
     lr(overall_genetic, 'overall with genetic features')
 
-    # with ADNI features
-    CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    lr(CN_ADNI, 'CN with ADNI features')
-    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    lr(MCI_ADNI, 'MCI with ADNI features')
-    AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    lr(AD_ADNI, 'AD with ADNI features')
-    overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    lr(overall_ADNI, 'overall with ADNI features')
+    # # with ADNI features
+    # CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    # lr(CN_ADNI, 'CN with ADNI features')
+    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    # lr(MCI_ADNI, 'MCI with ADNI features')
+    # AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    # lr(AD_ADNI, 'AD with ADNI features')
+    # overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
+    # lr(overall_ADNI, 'overall with ADNI features')

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.externals import joblib
-from sklearn.metrics import make_scorer
+from sklearn.metrics import make_scorer, f1_score, accuracy_score, precision_score
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold, StratifiedKFold
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
@@ -32,7 +32,8 @@ def svc_crossvalidate(file, params, n_splits=5):
     X = MinMaxScaler(feature_range=(0, 1)).fit_transform(data.values)
     scoring = make_scorer(cal_pearson)
     cv = StratifiedKFold(n_splits=n_splits, random_state=9)
-    grid = GridSearchCV(SVC(random_state=0), params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
+    grid = GridSearchCV(SVC(random_state=0), params, scoring=scoring, cv=cv, return_train_score=False, iid=False,
+                        n_jobs=-1)
     grid.fit(X, y)
     result = grid.best_estimator_
     print('best Pearson score:', grid.best_score_)
@@ -63,7 +64,7 @@ def cn_without_extra_data():
                'coef0': [0, 0.1, 1, 10, 100]},
               {'kernel': ['rbf'], 'gamma': [0.001, 0.01, 0.1, 1, 10], 'C': [1, 10, 100, 1000],
                'class_weight': ['balanced', {0: 1, 1: 8}, {0: 1, 1: 10}]}]
-    svc_crossvalidate('clf_CN', params, 4)
+    svc_crossvalidate('clf_CN', params, 2)
 
 
 """
@@ -132,7 +133,7 @@ def cn_with_extra_data():
                'coef0': [0, 0.1, 1, 10, 100]},
               {'kernel': ['rbf'], 'gamma': [0.001, 0.01, 0.1, 1, 10], 'C': [0.1, 1, 10, 100, 1000],
                'class_weight': ['balanced', {0: 1, 1: 8}, {0: 1, 1: 10}]}]
-    svc_crossvalidate('clf_CN_extra_data', params, 4)
+    svc_crossvalidate('clf_CN_extra_data', params, 2)
 
 
 """
@@ -183,10 +184,10 @@ def ad_with_extra_data():
 
 if __name__ == "__main__":
     print('#### without ADNI-MEM ADNI-EF data ####')
-    cn_without_extra_data()
+    # cn_without_extra_data()
     mci_without_extra_data()
     ad_without_extra_data()
-    print('#### with ADNI-MEM ADNI-EF data ####')
-    cn_with_extra_data()
-    mci_with_extra_data()
-    ad_with_extra_data()
+    # print('#### with ADNI-MEM ADNI-EF data ####')
+    # cn_with_extra_data()
+    # mci_with_extra_data()
+    # ad_with_extra_data()

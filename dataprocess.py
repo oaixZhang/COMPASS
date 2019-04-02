@@ -156,6 +156,7 @@ def data_genetic():
     # # CN.drop(columns=['RID', 'DX_bl'], inplace=True)
     # CN.to_csv('./data_genetic/CN.csv', index=0)
 
+
 if __name__ == '__main__':
     # preprocess()
     # data4classification()
@@ -165,4 +166,23 @@ if __name__ == '__main__':
     # merge_mem_ef_data()
     # extra4classification()
     # extra4regression()
-    data_genetic()
+    # data_genetic()
+    data = pd.read_csv('./data_genetic/data_all_features.csv')
+
+    CN = data[data.DX_bl == 1].copy()
+    CN_o = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    CN_o.to_csv('./data_genetic/clf_CN.csv', index=0)
+    CN_e = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
+    CN_e.to_csv('./data_genetic/clf_CN_extra_data.csv', index=0)
+
+    MCI = data[data.DX_bl == 2].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    MCI_o.to_csv('./data_genetic/clf_MCI.csv', index=0)
+    MCI_e = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
+    MCI_e.to_csv('./data_genetic/clf_MCI_extra_data.csv', index=0)
+
+    AD = data[data.DX_bl == 3].copy()
+    AD_o = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    AD_o.to_csv('./data_genetic/clf_AD.csv', index=0)
+    AD_e = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
+    AD_e.to_csv('./data_genetic/clf_AD_extra_data.csv', index=0)

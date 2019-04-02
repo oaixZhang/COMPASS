@@ -47,10 +47,10 @@ class CascadeForest(BaseEstimator):
             layered_score = self._cascade_evaluation(X_test, y_test)
 
         if layered_score < score:
-            n_cascadeRF = getattr(self, 'n_cascadeRF')
-            for irf in range(n_cascadeRF):
-                delattr(self, '_casrf{}_{}'.format(self.n_layer, irf))
-                delattr(self, '_cascrf{}_{}'.format(self.n_layer, irf))
+            delattr(self, '_casrf{}'.format(self.n_layer))
+            delattr(self, '_cascrf{}'.format(self.n_layer))
+            delattr(self, '_caslr{}'.format(self.n_layer))
+            delattr(self, '_cassvr{}'.format(self.n_layer))
             self.n_layer -= 1
 
         return self
@@ -76,32 +76,41 @@ class CascadeForest(BaseEstimator):
 
     def _cascade_layer(self, X, y=None, layer=0):
         n_tree = getattr(self, 'n_cascadeRFtree')
-        n_cascadeRF = getattr(self, 'n_cascadeRF')
         min_samples = getattr(self, 'min_samples_cascade')
-
         n_jobs = getattr(self, 'n_jobs')
+
         rf = RandomForestRegressor(n_estimators=n_tree, max_features='sqrt',
                                    min_samples_split=min_samples, oob_score=True, n_jobs=n_jobs)
         crf = RandomForestRegressor(n_estimators=n_tree, max_features=1,
                                     min_samples_split=min_samples, oob_score=True, n_jobs=n_jobs)
         lr = LinearRegression()
-        svr = SVR()
+        svr = SVR(gamma=0.1)
+
         pred = []
         if y is not None:
             # print('Adding Training Layer, n_layer={}'.format(self.n_layer))
-            for irf in range(n_cascadeRF):
-                rf.fit(X, y)
-                crf.fit(X, y)
-                setattr(self, '_casrf{}_{}'.format(self.n_layer, irf), rf)
-                setattr(self, '_cascrf{}_{}'.format(self.n_layer, irf), crf)
-                pred.append(rf.oob_prediction_)
-                pred.append(crf.oob_prediction_)
+            # for irf in range(n_cascadeRF):
+            rf.fit(X, y)
+            crf.fit(X, y)
+            lr.fit(X, y)
+            svr.fit(X, y)
+            setattr(self, '_casrf{}'.format(self.n_layer), rf)
+            setattr(self, '_cascrf{}'.format(self.n_layer), crf)
+            setattr(self, '_caslr{}'.format(self.n_layer), lr)
+            setattr(self, '_cassvr{}'.format(self.n_layer), svr)
+            pred.append(rf.predict(X))
+            pred.append(crf.predict(X))
+            pred.append(lr.predict(X))
+            pred.append(svr.predict(X))
         elif y is None:
-            for irf in range(n_cascadeRF):
-                rf = getattr(self, '_casrf{}_{}'.format(layer, irf))
-                crf = getattr(self, '_cascrf{}_{}'.format(layer, irf))
-                pred.append(rf.predict(X))
-                pred.append(crf.predict(X))
+            rf = getattr(self, '_casrf{}'.format(layer))
+            crf = getattr(self, '_cascrf{}'.format(layer))
+            lr = getattr(self, '_caslr{}'.format(layer))
+            svr = getattr(self, '_cassvr{}'.format(layer))
+            pred.append(rf.predict(X))
+            pred.append(crf.predict(X))
+            pred.append(lr.predict(X))
+            pred.append(svr.predict(X))
 
         return pred
 
