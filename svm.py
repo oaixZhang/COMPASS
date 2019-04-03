@@ -251,13 +251,7 @@ def roc(svc, file, cv):
     i = 0
     for train, test in cv.split(X, y):
         probas_ = svc.fit(X[train], y[train]).predict_proba(X[test])
-        score = svc.fit(X[train], y[train]).score(X[test],y[test])
         fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
-        print('score', score)
-        print('probas_',probas_)
-        print('thresholds',thresholds)
-        print('fpr',fpr)
-        print('tpr',tpr)
         tprs.append(interp(mean_fpr, fpr, tpr))
         tprs[-1][0] = 0.0
         roc_auc = auc(fpr, tpr)
@@ -343,7 +337,7 @@ def roc_whole():
     index = 0
     mean_tprs = []
     for file in files:
-        data = pd.read_csv('./data/%s.csv' % file)
+        data = pd.read_csv('./data_genetic/%s.csv' % file)
         y = data.pop('DECLINED').values
         X = MinMaxScaler(feature_range=(0, 1)).fit_transform(data.values)
         tprs = []
@@ -351,7 +345,7 @@ def roc_whole():
         mean_fpr = np.linspace(0, 1, 100)
         svc = classifiers[index]
         if index % 3 == 0:
-            cv = StratifiedKFold(n_splits=2, random_state=0)
+            cv = StratifiedKFold(n_splits=4, random_state=0)
         else:
             cv = StratifiedKFold(n_splits=10, random_state=0)
         plt.subplot(2, 3, index + 1)
@@ -404,11 +398,11 @@ if __name__ == "__main__":
     # cn_with_extra_data()
     # mci_with_extra_data()
     # ad_with_extra_data()
-    roc(SVC(C=0.1, kernel='poly', degree=3, gamma=1, coef0=0.1, class_weight={0: 1, 1: 8}, probability=True),
-        'clf_CN', StratifiedKFold(n_splits=4, random_state=0))
+    # roc(SVC(C=0.1, kernel='poly', degree=3, gamma=1, coef0=0.1, class_weight={0: 1, 1: 8}, probability=True),
+    #     'clf_CN', StratifiedKFold(n_splits=4, random_state=0))
     # roc(SVC(C=0.1, kernel='poly', degree=2, gamma=10, coef0=0.1, class_weight={0: 1, 1: 8}, probability=True),
     #     'clf_MCI', StratifiedKFold(n_splits=4, random_state=0))
     # roc(SVC(C=0.1, kernel='poly', degree=2, gamma=10, coef0=0.1, class_weight={0: 1, 1: 8}, probability=True),
     #     'clf_AD', StratifiedKFold(n_splits=4, random_state=0))
     # roccurve()
-    # roc_whole()
+    roc_whole()

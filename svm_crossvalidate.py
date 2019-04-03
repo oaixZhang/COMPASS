@@ -40,7 +40,6 @@ def svc_crossvalidate(file, params, n_splits=5):
     print('best parameters: ', grid.best_params_, '\n')
     joblib.dump(result, './model_params/{}.m'.format(file))
     pd.DataFrame(grid.cv_results_).to_csv('./grid/{}.csv'.format(file), index=0)
-
     return result
 
 
