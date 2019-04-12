@@ -4,7 +4,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
-from svm import cal_pearson
+from svr import cal_pearson
 from sklearn.base import BaseEstimator
 
 

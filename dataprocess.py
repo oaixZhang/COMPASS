@@ -156,6 +156,48 @@ def data_genetic():
     # # CN.drop(columns=['RID', 'DX_bl'], inplace=True)
     # CN.to_csv('./data_genetic/CN.csv', index=0)
 
+def dataAPOE3():
+    df = pd.read_csv('./data/ADNI_Training_Q1.csv')
+    bldata = df[df.VISCODE == 'bl'].copy()
+    # gender
+    gender = bldata['PTGENDER'].copy()
+    gender[bldata.PTGENDER == 'Male'] = 1
+    gender[bldata.PTGENDER == 'Female'] = 0
+    bldata['PTGENDER'] = gender
+    # APOE gene type
+    bldata.index = range(0, len(bldata))
+    genotype = bldata['APOE Genotype']
+    APOE2 = np.zeros(len(bldata), dtype=np.int32)
+    APOE3 = np.zeros(len(bldata), dtype=np.int32)
+    for i in range(0, len(bldata)):
+        APOE2[i] = genotype[i].count('2')
+        APOE3[i] = genotype[i].count('3')
+    bldata['APOE2'] = APOE2
+    bldata['APOE3'] = APOE3
+    # MMSE and MMSE24
+    mmse = bldata.pop('MMSE')
+    mmse24 = df[df.VISCODE == 'm24'].pop('MMSE')
+    bldata['MMSE'] = mmse.values
+    bldata['MMSE24'] = mmse24.values
+    # CN-->1 , MCI-->2 , AD-->3
+    bldata['DX_bl'] = bldata['DX_bl'].map({'CN': 1, 'LMCI': 2, 'EMCI': 2, 'AD': 3})
+    # drop columns
+    bldata.drop(columns=['PTID', 'EXAMDATE', 'VISCODE', 'APOE Genotype'], inplace=True)
+    # save
+    data = bldata
+    deltaMMSE = data['MMSE24'] - data['MMSE']
+    data['deltaMMSE'] = deltaMMSE
+    data.pop('MMSE24')
+    # genetic features
+    df = pd.read_csv('./data_genetic/TOMM40.csv')
+    data = pd.merge(data, df, how='inner', on='RID')
+    # ADNI MEM EF features
+    df = pd.read_csv('./data_genetic/ADNI_MEM_EF.csv')
+    data = pd.merge(data, df, how='left', on='RID')
+    # declined for clf
+    data['DECLINED'] = [int(delta <= -3) for delta in data['deltaMMSE']]
+    data.to_csv('./data_genetic/data_all_features.csv', index=0)
+
 
 if __name__ == '__main__':
     # preprocess()
@@ -167,22 +209,23 @@ if __name__ == '__main__':
     # extra4classification()
     # extra4regression()
     # data_genetic()
-    data = pd.read_csv('./data_genetic/data_all_features.csv')
-
-    CN = data[data.DX_bl == 1].copy()
-    CN_o = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
-    CN_o.to_csv('./data_genetic/clf_CN.csv', index=0)
-    CN_e = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
-    CN_e.to_csv('./data_genetic/clf_CN_extra_data.csv', index=0)
-
-    MCI = data[data.DX_bl == 2].copy()
-    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
-    MCI_o.to_csv('./data_genetic/clf_MCI.csv', index=0)
-    MCI_e = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
-    MCI_e.to_csv('./data_genetic/clf_MCI_extra_data.csv', index=0)
-
-    AD = data[data.DX_bl == 3].copy()
-    AD_o = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
-    AD_o.to_csv('./data_genetic/clf_AD.csv', index=0)
-    AD_e = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
-    AD_e.to_csv('./data_genetic/clf_AD_extra_data.csv', index=0)
+    # data = pd.read_csv('./data_genetic/data_all_features.csv')
+    #
+    # CN = data[data.DX_bl == 1].copy()
+    # CN_o = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    # CN_o.to_csv('./data_genetic/clf_CN.csv', index=0)
+    # CN_e = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
+    # CN_e.to_csv('./data_genetic/clf_CN_extra_data.csv', index=0)
+    #
+    # MCI = data[data.DX_bl == 2].copy()
+    # MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    # MCI_o.to_csv('./data_genetic/clf_MCI.csv', index=0)
+    # MCI_e = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
+    # MCI_e.to_csv('./data_genetic/clf_MCI_extra_data.csv', index=0)
+    #
+    # AD = data[data.DX_bl == 3].copy()
+    # AD_o = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    # AD_o.to_csv('./data_genetic/clf_AD.csv', index=0)
+    # AD_e = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
+    # AD_e.to_csv('./data_genetic/clf_AD_extra_data.csv', index=0)
+    dataAPOE3()

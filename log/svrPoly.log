@@ -71,3 +71,40 @@ best parameters:  {'C': 0.1, 'coef0': 100, 'degree': 2, 'gamma': 10, 'kernel': '
 
 
 Process finished with exit code 0
+
+
+poly kernel degree=1 with APOE3
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with original data svr regression ***
+best Pearson score: 0.5733782124243433
+best parameters:  {'C': 1, 'coef0': 100, 'degree': 1, 'gamma': 0.1, 'kernel': 'poly'}
+
+*** MCI with original data svr regression ***
+best Pearson score: 0.15725110972521222
+best parameters:  {'C': 0.1, 'coef0': 0.01, 'degree': 1, 'gamma': 0.1, 'kernel': 'poly'}
+
+*** AD with original data svr regression ***
+best Pearson score: 0.2975273436314353
+best parameters:  {'C': 100, 'coef0': 100, 'degree': 1, 'gamma': 10, 'kernel': 'poly'}
+
+*** overall with original data svr regression ***
+best Pearson score: 0.4109234491233401
+best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 0.1, 'kernel': 'poly'}
+
+*** CN with ADNI features svr regression ***
+best Pearson score: 0.5705866134743425
+best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with ADNI features svr regression ***
+best Pearson score: 0.5223584137515825
+best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with ADNI features svr regression ***
+best Pearson score: 0.6773634061849185
+best parameters:  {'C': 100, 'coef0': 10, 'degree': 1, 'gamma': 0.1, 'kernel': 'poly'}
+
+*** overall with ADNI features svr regression ***
+best Pearson score: 0.625431782069288
+best parameters:  {'C': 100, 'coef0': 0, 'degree': 1, 'gamma': 10, 'kernel': 'poly'}
+
+Process finished with exit code 0
