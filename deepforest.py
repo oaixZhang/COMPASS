@@ -1,19 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from numpy import interp
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, precision_score, make_scorer, f1_score, roc_curve, auc
-from sklearn.model_selection import train_test_split, RepeatedKFold, GridSearchCV, cross_validate, cross_val_score, \
-    RepeatedStratifiedKFold, StratifiedKFold
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import SVC
-
-from CascadeForest import CascadeForest
-from GCForest import gcForest
-from gcforest.gcforest import GCForest
 from svr import cal_pearson
+from numpy import interp
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_curve, auc
+from sklearn.model_selection import RepeatedStratifiedKFold, KFold, RepeatedKFold, StratifiedKFold
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, ExtraTreesClassifier, RandomForestClassifier
+from gcforest import GCForestRegressor, CascadeForestRegressor, GCForest, CascadeForest
+from sklearn.decomposition import PCA
 
 
 def get_toy_config():
@@ -36,177 +32,275 @@ def get_toy_config():
     return config
 
 
-def randomForest(data, group):
-    print('*** %s random forest regression ***' % group)
-    y = data.pop('deltaMMSE').values
-    X = MinMaxScaler().fit_transform(data.values)
-    # print('X.shape: ', X.shape, 'y.shape: ', y.shape)
-    rf = RandomForestRegressor()
-    params = {'n_estimators': [10, 50, 100]}
-    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
-    # scoring = make_scorer(cal_pearson)
-    grid = GridSearchCV(rf, params, cv=cv, return_train_score=False, iid=False)
-
-    grid.fit(X, y)
-    print('best Pearson score:', grid.best_score_)
-    print('best parameters: ', grid.best_params_, '\n')
-
-
-def crossvalidate(X, y, estimator, scoring=make_scorer(cal_pearson)):
-    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
-    results = cross_val_score(estimator, X, y, scoring=scoring, cv=cv)
-    # print('scores:', results['test_score'])
-    print('mean score:', results.mean(), '\n')
-
-
 def regression(group):
     data = pd.read_csv('./data_genetic/data_all_features.csv')
-    print('group=', group)
+    data.pop('APOE3')
+    print('***************** group=', group, '*********************')
     X = data[data.DX_bl == group].copy()
     X = X.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
     y = X.pop('deltaMMSE').values
-    X = MinMaxScaler().fit_transform(X.values)
+    X = X.values
+    cv = RepeatedKFold(10, 5)
+    scores = []
+    print('without ADNI FEATURE')
+    for train_index, test_index in cv.split(X, y):
+        X_train = X[train_index]
+        X_test = X[test_index]
+        y_train = y[train_index]
+        y_test = y[test_index]
+        regressor = GCForestRegressor(estimators_config={
+            'mgs': [{'estimator_class': ExtraTreesRegressor,
+                     'estimator_params': {'n_estimators': 30, 'min_samples_split': 0.1, 'n_jobs': -1, }
+                     }, {'estimator_class': RandomForestRegressor,
+                         'estimator_params': {'n_estimators': 30, 'min_samples_split': 0.1, 'n_jobs': -1, }}],
+            'cascade': [{'estimator_class': ExtraTreesRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 1,
+                                              'n_jobs': -1, }},
+                        {'estimator_class': ExtraTreesRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 'sqrt',
+                                              'n_jobs': -1, }},
+                        {'estimator_class': RandomForestRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 1,
+                                              'n_jobs': -1, }},
+                        {'estimator_class': RandomForestRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 'sqrt',
+                                              'n_jobs': -1, }}]})
+        regressor.fit(X_train, y_train)
+        # X_train = cf.transform(X_train)
+        # svc = SVC(kernel='poly', degree=1, C=1, coef0=100, class_weight={0: 1, 1: 2}, gamma=1, probability=True)
+        # svc.fit(X_train, y_train)
+        # X_test = cf.transform(X_test)
+        pred = regressor.predict(X_test)
+        pearson = cal_pearson(y_test, pred)
+        print(pearson)
+        scores.append(pearson)
+    scores = np.asarray(scores)
+    print(scores)
+    print("************ pearson: ", scores.mean(), '\n')
 
-    rf = RandomForestRegressor(n_estimators=101, min_samples_split=0.1, max_features=1, oob_score=True)
-    crossvalidate(X, y, rf)
-
-    cf = CascadeForest()
-    crossvalidate(X, y, cf)
-
+    # with ADNI feature
     print('with ADNI FEATURE')
     X = data[data.DX_bl == group].copy()
     X = X.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
     y = X.pop('deltaMMSE').values
-    X = MinMaxScaler().fit_transform(X.values)
-
-    rf = RandomForestRegressor(n_estimators=101, min_samples_split=0.1, max_features=1, oob_score=True)
-    crossvalidate(X, y, rf)
-
-    cf = CascadeForest()
-    crossvalidate(X, y, cf)
-
-    # ef = ExtraTreesRegressor(n_estimators=101, min_samples_split=0.1, max_features=1, oob_score=True)
-    # crossvalidate(X, y, rf)
-
-    # lr = LinearRegression()
-    # crossvalidate(X, y, lr)
-
-    # cf.fit(X_train, y_train)
-    # cf_pred = cf.predict(X_test)
-    # cf_pred = np.mean(cf_pred, axis=0)
-    # print('cf pearson:', cal_pearson(y_test, cf_pred))
-
-
-def cv4clf(X, y, estimator):
-    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=9)
-    scoring = ['accuracy_score', 'precision_score']
-    results = cross_validate(estimator, X, y, scoring=scoring, cv=cv, return_train_score=False)
-    print('mean score:', results, '\n')
-
-
-def clf():
-    data = pd.read_csv('./data_genetic/data_all_features.csv')
-
-    # original data
-    MCI = data[data.DX_bl == 2].copy()
-    MCI = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
-    y = MCI.pop('DECLINED').values
-    X = MinMaxScaler().fit_transform(MCI.values)
-
-    gcf = gcForest(tolerance=0.0, min_samples_cascade=20)
-    # cv4clf(X, y, gcf)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=9)
-    gcf.fit(X_train, y_train)
-    pred = gcf.predict(X_test)
-    print('y_test', y_test)
-    print('y_pred', pred)
-    print('accuracy:', accuracy_score(y_test, pred))
-    print('precision:', precision_score(y_test, pred))
-    print('f1 score:', f1_score(y_test, pred))
+    # X = MinMaxScaler().fit_transform(X.values)
+    X = X.values
+    scores = []
+    for train_index, test_index in cv.split(X, y):
+        X_train = X[train_index]
+        X_test = X[test_index]
+        y_train = y[train_index]
+        y_test = y[test_index]
+        regressor = GCForestRegressor(estimators_config={
+            'mgs': [{'estimator_class': ExtraTreesRegressor,
+                     'estimator_params': {'n_estimators': 30, 'min_samples_split': 0.1, 'n_jobs': -1, }
+                     }, {'estimator_class': RandomForestRegressor,
+                         'estimator_params': {'n_estimators': 30, 'min_samples_split': 0.1, 'n_jobs': -1, }}],
+            'cascade': [{'estimator_class': ExtraTreesRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 1,
+                                              'n_jobs': -1, }},
+                        {'estimator_class': ExtraTreesRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 'sqrt',
+                                              'n_jobs': -1, }},
+                        {'estimator_class': RandomForestRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 1,
+                                              'n_jobs': -1, }},
+                        {'estimator_class': RandomForestRegressor,
+                         'estimator_params': {'n_estimators': 1000, 'min_samples_split': 0.1, 'max_features': 'sqrt',
+                                              'n_jobs': -1, }}]})
+        regressor.fit(X_train, y_train)
+        # X_train = cf.transform(X_train)
+        # svc = SVC(kernel='poly', degree=1, C=1, coef0=100, class_weight={0: 1, 1: 2}, gamma=1, probability=True)
+        # svc.fit(X_train, y_train)
+        # X_test = cf.transform(X_test)
+        pred = regressor.predict(X_test)
+        pearson = cal_pearson(y_test, pred)
+        print(pearson)
+        scores.append(pearson)
+    scores = np.asarray(scores)
+    print(scores)
+    print("************ pearson: ", scores.mean(), '\n')
 
 
-def roc_df():
-    files = ['clf_CN', 'clf_MCI', 'clf_AD', 'clf_CN_extra_data', 'clf_MCI_extra_data', 'clf_AD_extra_Data']
-    titles = ['CN_Without_ADNI_feature', 'MCI_Without_ADNI_feature', 'AD_Without_ADNI_feature', 'CN_With_ADNI_feature',
-              'MCI_With_ADNI_feature', 'AD_With_ADNI_feature']
-    index = 0
-    mean_tprs = []
-    config = get_toy_config()
-    for file in files:
-        data = pd.read_csv('./data_genetic/%s.csv' % file)
-        y = data.pop('DECLINED').values
-        X = MinMaxScaler(feature_range=(0, 1)).fit_transform(data.values)
-        tprs = []
-        aucs = []
-        mean_fpr = np.linspace(0, 1, 100)
-        if index % 3 == 0:
-            cv = StratifiedKFold(n_splits=4, random_state=0)
-        else:
-            cv = StratifiedKFold(n_splits=5, random_state=0)
-        plt.subplot(2, 3, index + 1)
-        for train, test in cv.split(X, y):
-            clf = gcForest(shape_1X=4, window=2, tolerance=0.0)
-            clf.fit(X[train], y[train])
-            probas_ = clf.predict(X[test])
+"""
+group1 CN
+without ADNI 
+[0.71297697 0.17805623 0.39863867 0.42554261 0.49043591 0.85103535
+ 0.79347904 0.62866073 0.35965381 0.51820405]
+************ pearson:  0.535668338833347 
+with ADNI
+[0.7057551  0.28820992 0.45851813 0.44446211 0.59453939 0.83823115
+ 0.81550011 0.61931628 0.42138128 0.57653067]
+************ pearson:  0.5762444157019743 
 
-            # clf = GCForest(config)
-            # clf.fit_transform(X[train], y[train])
-            # probas_ = clf.predict_proba(X[test])
+group2 MCI
+[ 0.23742953 -0.04144494 -0.0143573   0.00313138  0.11088353  0.20075264
+ -0.01563774 -0.31205064 -0.16442606 -0.06477032]
+************ pearson:  -0.0060489923440515975 
 
-            # clf = LogisticRegression(solver='liblinear')
-            # clf.fit(X[train], y[train])
-            # probas_ = clf.predict_proba(X[test])
+[0.37200837 0.2685557  0.44209471 0.40039963 0.54373497 0.36957473
+ 0.27399618 0.53957918 0.50921378 0.55834271]
+************ pearson:  0.42774999433172034 
 
-            fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
-            tprs.append(interp(mean_fpr, fpr, tpr))
-            tprs[-1][0] = 0.0
-            roc_auc = auc(fpr, tpr)
-            aucs.append(roc_auc)
-            plt.plot(fpr, tpr, lw=1, alpha=0.3)
-        plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', alpha=.8)
-        mean_tpr = np.mean(tprs, axis=0)
-        mean_tpr[-1] = 1.0
-        mean_auc = auc(mean_fpr, mean_tpr)
-        plt.plot(mean_fpr, mean_tpr, color='b', label=r'Mean ROC (AUC=%0.2f)' % mean_auc, lw=2, alpha=.8)
-        mean_tprs.append(mean_tpr)
-        plt.xlim([0, 1])
-        plt.ylim([0, 1])
-        # plt.xlabel('False Positive Rate')
-        # plt.ylabel('True Positive Rate')
-        plt.title(titles[index], fontsize=6)
-        plt.legend(loc='lower right', fontsize=6)
-        index += 1
+group3 AD
+[ 0.15575252 -0.18159147 -0.30022461 -0.14374321  0.14894891  0.4948615
+  0.28996656  0.42449636  0.02450103 -0.13670645]
+************ pearson:  0.07762611510247408 
 
-    plt.show()
+[0.87316364 0.53836558 0.77002453 0.29160336 0.43185338 0.79992531
+ 0.29331648 0.6891316  0.81565601 0.79695637]
+************ pearson:  0.6299996255300313 
 
-    mean_tprs = np.array(mean_tprs)
-    weighted_tpr = mean_tprs[0] * 152 / 489 + mean_tprs[1] * 230 / 489 + mean_tprs[2] * 107 / 489
-    weighted_tpr_with_extra = mean_tprs[3] * 152 / 489 + mean_tprs[4] * 230 / 489 + mean_tprs[5] * 107 / 489
-    weighted_auc = auc(mean_fpr, weighted_tpr)
-    plt.plot(mean_fpr, weighted_tpr, color='b', label=r'Without ADNI features (AUC=%0.2f)' % weighted_auc, lw=2,
-             alpha=.8)
-    weighted_auc_with_extra = auc(mean_fpr, weighted_tpr_with_extra)
-    plt.plot(mean_fpr, weighted_tpr_with_extra, color='r',
-             label=r'With ADNI features (AUC=%0.2f)' % weighted_auc_with_extra,
-             lw=2, alpha=.8)
-    plt.plot([0, 1], [0, 1], linestyle='--', lw=2, alpha=.5)
-    plt.title('ROC Curve')
-    plt.legend(loc='lower right', fontsize=12)
-    plt.show()
+"""
+
+
+def dfregressor(data, group):
+    print('*** %s svr regression ***' % group)
+    y = data.pop('deltaMMSE').values
+    X = data.values
+    print('X.shape: ', X.shape, 'y.shape: ', y.shape)
+    cv = RepeatedKFold(5, 1)
+    scores = []
+    print('without ADNI FEATURE')
+    for train_index, test_index in cv.split(X, y):
+        X_train = X[train_index]
+        X_test = X[test_index]
+        y_train = y[train_index]
+        y_test = y[test_index]
+        regressor = CascadeForestRegressor(
+            estimators_config=[{'estimator_class': ExtraTreesRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 1,
+                                                     'n_jobs': -1, }},
+                               {'estimator_class': ExtraTreesRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 'sqrt',
+                                                     'n_jobs': -1, }},
+                               {'estimator_class': RandomForestRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 1,
+                                                     'n_jobs': -1, }},
+                               {'estimator_class': RandomForestRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 'sqrt',
+                                                     'n_jobs': -1, }}])
+        regressor.fit(X_train, y_train)
+        pred = regressor.predict(X_test)
+        pearson = cal_pearson(y_test, pred)
+        print(pearson)
+        scores.append(pearson)
+    scores = np.asarray(scores)
+    print(scores)
+    print("************ pearson: ", scores.mean(), '\n')
+
+
+def reg_with_pca(data, group):
+    print('*** %s svr regression ***' % group)
+    y = data.pop('deltaMMSE').values
+    X = MinMaxScaler().fit_transform(data.values)
+    print('X.shape: ', X.shape, 'y.shape: ', y.shape)
+    X_basic = X[:, :-2150].copy()
+    X_img = X[:, -2150:].copy()
+    X_img = PCA(0.9).fit_transform(X_img)
+    X = np.hstack((X_basic, X_img))
+    X = MinMaxScaler().fit_transform(X)
+    print('X.shape: ', X.shape, 'y.shape: ', y.shape)
+    cv = RepeatedKFold(5, 1)
+    scores = []
+    print('without ADNI FEATURE')
+    for train_index, test_index in cv.split(X, y):
+        X_train = X[train_index]
+        X_test = X[test_index]
+        y_train = y[train_index]
+        y_test = y[test_index]
+        regressor = CascadeForestRegressor(
+            estimators_config=[{'estimator_class': ExtraTreesRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 1,
+                                                     'n_jobs': -1, }},
+                               {'estimator_class': ExtraTreesRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 'sqrt',
+                                                     'n_jobs': -1, }},
+                               {'estimator_class': RandomForestRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 1,
+                                                     'n_jobs': -1, }},
+                               {'estimator_class': RandomForestRegressor,
+                                'estimator_params': {'n_estimators': 1000,
+                                                     'min_samples_split': 0.1,
+                                                     'max_features': 'sqrt',
+                                                     'n_jobs': -1, }}])
+        regressor.fit(X_train, y_train)
+        pred = regressor.predict(X_test)
+        pearson = cal_pearson(y_test, pred)
+        print(pearson)
+        scores.append(pearson)
+    scores = np.asarray(scores)
+    print(scores)
+    print("************ pearson: ", scores.mean(), '\n')
+
+
+# 422 samples
+def reg_with_imaging_data():
+    df = pd.read_csv('./data_genetic/imaging_data.csv')
+
+    # data = df.iloc[:, 0:12].copy()
+    # # original data
+    # CN = data[data.DX_bl == 1].copy()
+    # CN_o = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # # dfregressor(CN_o, 'CN with basic data')
+    # MCI = data[data.DX_bl == 2].copy()
+    # MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # # dfregressor(MCI_o, 'MCI with basic data')
+    # AD = data[data.DX_bl == 3].copy()
+    # AD_o = AD.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # # dfregressor(AD_o, 'AD with basic data')
+
+    # # with ADNI features
+    # CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # dfregressor(CN_ADNI, 'CN with ADNI features')
+    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # dfregressor(MCI_ADNI, 'MCI with ADNI features')
+    # AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # dfregressor(AD_ADNI, 'AD with ADNI features')
+
+    # with imaging data
+    CN_imaging = df[df.DX_bl == 1].copy()
+    CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    reg_with_pca(CN_img, 'CN with imaging data')
+    MCI_imaging = df[df.DX_bl == 2].copy()
+    MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    reg_with_pca(MCI_img, 'MCI with imaging data')
+    AD_imaging = df[df.DX_bl == 3].copy()
+    AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    reg_with_pca(AD_img, 'AD with imaging data')
+
+    # # with imaging and ADNI features
+    # CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # dfregressor(CN_img, 'CN with imaging and ADNI')
+    # MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # dfregressor(MCI_img, 'MCI with imaging and ADNI')
+    # AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # dfregressor(AD_img, 'AD with imaging and ADNI')
 
 
 def roc_MCI():
     files = ['clf_MCI', 'clf_MCI_extra_data']
     titles = ['MCI_Without_ADNI_feature', 'MCI_With_ADNI_feature']
     classifiers = [
-        gcForest(shape_1X=6, window=3, tolerance=0.0),
-        gcForest(shape_1X=8, window=3, tolerance=0.0)
         # SVC(kernel='poly', C=1, class_weight='balanced', gamma=1, degree=1, coef0=100, probability=True),
         # SVC(kernel='poly', C=1, class_weight='balanced', gamma=1, degree=1, coef0=1, probability=True)
     ]
     index = 0
     mean_tprs = []
-    config = get_toy_config()
     for file in files:
         data = pd.read_csv('./data_genetic/%s.csv' % file)
         y = data.pop('DECLINED').values
@@ -218,26 +312,13 @@ def roc_MCI():
         plt.subplot(1, 2, index + 1)
         # clf = classifiers[index]
         for train, test in cv.split(X, y):
-            # clf = classifiers[index]
-            # clf.fit(X[train], y[train])
+            # clf = GCForest(config)
+            # clf.fit_transform(X[train], y[train])
             # probas_ = clf.predict_proba(X[test])
 
-            # gcf = gcForest(tolerance=0.0, min_samples_cascade=20)
-            # gcf.cascade_forest(X[train], y[train])
-            # probas_ = gcf.cascade_forest(X[test])
-            # probas_ = np.mean(probas_, axis=0)
-
-            clf = GCForest(config)
-            clf.fit_transform(X[train], y[train])
+            clf = LogisticRegression(solver='liblinear')
+            clf.fit(X[train], y[train])
             probas_ = clf.predict_proba(X[test])
-
-            # clf = LogisticRegression(solver='liblinear')
-            # clf.fit(X[train], y[train])
-            # probas_ = clf.predict_proba(X[test])
-
-            # clf = SVC(probability=True,gamma=0.1)
-            # clf.fit(X[train], y[train])
-            # probas_ = clf.predict_proba(X[test])
 
             fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
             tprs.append(interp(mean_fpr, fpr, tpr))
@@ -261,12 +342,67 @@ def roc_MCI():
     plt.show()
 
 
+def roc():
+    data = []
+    for file in files:
+        data = pd.read_csv('./data_genetic/%s.csv' % file)
+        y = data.pop('DECLINED').values
+        X = data.values
+        tprs = []
+        aucs = []
+        mean_fpr = np.linspace(0, 1, 100)
+        cv = StratifiedKFold(n_splits=5)
+
+        for train, test in cv.split(X, y):
+            df = CascadeForest(
+                estimators_config=[{'estimator_class': ExtraTreesRegressor,
+                                    'estimator_params': {'n_estimators': 1000,
+                                                         'min_samples_split': 0.1,
+                                                         'max_features': 1,
+                                                         'n_jobs': -1, }},
+                                   {'estimator_class': ExtraTreesRegressor,
+                                    'estimator_params': {'n_estimators': 1000,
+                                                         'min_samples_split': 0.1,
+                                                         'max_features': 'sqrt',
+                                                         'n_jobs': -1, }},
+                                   {'estimator_class': RandomForestRegressor,
+                                    'estimator_params': {'n_estimators': 1000,
+                                                         'min_samples_split': 0.1,
+                                                         'max_features': 1,
+                                                         'n_jobs': -1, }},
+                                   {'estimator_class': RandomForestRegressor,
+                                    'estimator_params': {'n_estimators': 1000,
+                                                         'min_samples_split': 0.1,
+                                                         'max_features': 'sqrt',
+                                                         'n_jobs': -1, }}])
+            df.fit(X[train], y[train])
+            probas_ = df.predict_proba(X[test])
+            fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
+            tprs.append(interp(mean_fpr, fpr, tpr))
+            tprs[-1][0] = 0.0
+            roc_auc = auc(fpr, tpr)
+            aucs.append(roc_auc)
+
+        plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', alpha=.8)
+        mean_tpr = np.mean(tprs, axis=0)
+        mean_tpr[-1] = 1.0
+        mean_auc = auc(mean_fpr, mean_tpr)
+        plt.plot(mean_fpr, mean_tpr, label=r'Mean ROC (AUC=%0.3f)' % mean_auc, lw=2, alpha=.8)
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('ROC Curve of MCI')
+        plt.legend(loc='lower right', fontsize=10)
+    plt.show()
+
+
 if __name__ == '__main__':
-    # regression(1)
-    # regression(2)
-    # regression(3)
-    # clf()
     # roc_whole()
     # roc_df()
     # test()
-    roc_MCI()
+    # roc_MCI()
+    # regression(1)
+    # regression(2)
+    # regression(3)
+    reg_with_imaging_data()

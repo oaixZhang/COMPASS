@@ -1,0 +1,33 @@
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with original data svr regression ***
+X.shape:  (152, 6) y.shape:  (152,)
+best Pearson score: 0.566778491881377
+best parameters:  {'C': 0.1, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with original data svr regression ***
+X.shape:  (230, 6) y.shape:  (230,)
+best Pearson score: 0.13162160423332164
+best parameters:  {'C': 0.1, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with original data svr regression ***
+X.shape:  (107, 6) y.shape:  (107,)
+best Pearson score: 0.2933040641262262
+best parameters:  {'C': 100, 'coef0': 0, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** CN with ADNI features svr regression ***
+X.shape:  (152, 8) y.shape:  (152,)
+best Pearson score: 0.5582116862545945
+best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with ADNI features svr regression ***
+X.shape:  (230, 8) y.shape:  (230,)
+best Pearson score: 0.5274639709459972
+best parameters:  {'C': 10, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with ADNI features svr regression ***
+X.shape:  (107, 8) y.shape:  (107,)
+best Pearson score: 0.6870492722628014
+best parameters:  {'C': 100, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+
+Process finished with exit code 0

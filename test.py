@@ -1,6 +1,7 @@
 import sys
 
 import numpy as np
+from scipy.stats import pearsonr
 from sklearn.model_selection import RepeatedKFold, RepeatedStratifiedKFold
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
@@ -11,7 +12,6 @@ import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import accuracy_score
-from GCForest import gcForest
 
 
 # iris = datasets.load_iris()
@@ -61,7 +61,7 @@ def testGCForest():
     for traini, testi in skf.split(X, y):
         X_train, X_test, Y_train, Y_test = X[traini], X[testi], y[traini], y[testi]
         print(X_test.tolist())
-        gcf = gcForest(tolerance=0.0, min_samples_cascade=20)
+        # gcf = gcForest(tolerance=0.0, min_samples_cascade=20)
         gcf.cascade_forest(X_train, Y_train)
         pred_proba = gcf.cascade_forest(X_test)
         print(np.array(pred_proba).shape)
@@ -124,15 +124,18 @@ if __name__ == '__main__':
     # print(add_feat)
     # feat_arr = np.concatenate([add_feat, xtest], axis=1)
     # print(feat_arr)
-    data = pd.read_csv('./data_genetic/clf_MCI.csv')
-    y = data.pop('DECLINED').values
-    X = MinMaxScaler(feature_range=(0, 1)).fit_transform(data.values)
-    gcf = gcForest(shape_1X=4, window=2, tolerance=0.0)
-    X_tr, X_te, y_tr, y_te = train_test_split(X, y)
-    gcf.fit(X_tr, y_tr)
-    pred = gcf.predict(X_te)
-    pred_probs = gcf.predict_proba(X_te)
-    print(pred.shape)
-    print(pred)
-    print(pred_probs.shape)
-    print(pred_probs)
+
+    # a = np.random.rand(3, 5)
+    # print(a.shape)
+    # print(a)
+    # s = np.hstack([a] + [[[1], [1], [1]]])
+    # print(s)
+    # b = np.random.rand(3, 1)
+    # print(b)
+    # c = np.hstack((a, b))
+    # print(c)
+
+    # a = np.array([[1], [2], [3]])
+    a = [1, 2, 3]
+    b = np.array([[[1,1], [2,2], [3,3]],[[1,1], [2,2], [3,3]]])
+    print(np.hstack(b))

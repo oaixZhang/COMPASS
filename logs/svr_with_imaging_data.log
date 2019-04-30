@@ -1,0 +1,266 @@
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with basic data svr regression ***
+X.shape:  (135, 6) y.shape:  (135,)
+best Pearson score: 0.6157717924903594
+best parameters:  {'C': 100, 'coef0': 0, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with basic data svr regression ***
+X.shape:  (196, 6) y.shape:  (196,)
+best Pearson score: 0.08161955561282368
+best parameters:  {'C': 0.1, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with basic data svr regression ***
+X.shape:  (91, 6) y.shape:  (91,)
+best Pearson score: 0.2923524680026214
+best parameters:  {'C': 100, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** CN with ADNI features svr regression ***
+X.shape:  (135, 8) y.shape:  (135,)
+best Pearson score: 0.6139102081115484
+best parameters:  {'C': 100, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with ADNI features svr regression ***
+X.shape:  (196, 8) y.shape:  (196,)
+best Pearson score: 0.5089071723107217
+best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with ADNI features svr regression ***
+X.shape:  (91, 8) y.shape:  (91,)
+best Pearson score: 0.6814848294427245
+best parameters:  {'C': 100, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+
+
+
+
+
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with imaging data svr regression ***
+X.shape:  (135, 2156) y.shape:  (135,)
+best Pearson score: 0.15349186770859888
+best parameters:  {'C': 0.1, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with imaging data svr regression ***
+X.shape:  (196, 2156) y.shape:  (196,)
+best Pearson score: 0.2541134781093159
+best parameters:  {'C': 1, 'coef0': 0, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with imaging data svr regression ***
+X.shape:  (91, 2156) y.shape:  (91,)
+best Pearson score: 0.29220555773006196
+best parameters:  {'C': 0.1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** CN with imaging and ADNI svr regression ***
+X.shape:  (135, 2158) y.shape:  (135,)
+best Pearson score: 0.15190943075107652
+best parameters:  {'C': 0.1, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with imaging and ADNI svr regression ***
+X.shape:  (196, 2158) y.shape:  (196,)
+best Pearson score: 0.28580366287452696
+best parameters:  {'C': 1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with imaging and ADNI svr regression ***
+X.shape:  (91, 2158) y.shape:  (91,)
+best Pearson score: 0.306690870497644
+best parameters:  {'C': 0.1, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+
+Process finished with exit code 0
+
+
+pca 0.9
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with imaging data svr regression ***
+X.shape:  (135, 2156) y.shape:  (135,)
+X.shape:  (135, 91) y.shape:  (135,)
+best Pearson score: 0.43940130768558483
+best parameters:  {'C': 0.1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with imaging data svr regression ***
+X.shape:  (196, 2156) y.shape:  (196,)
+X.shape:  (196, 118) y.shape:  (196,)
+best Pearson score: 0.2926247325116896
+best parameters:  {'C': 1, 'coef0': 0, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with imaging data svr regression ***
+X.shape:  (91, 2156) y.shape:  (91,)
+X.shape:  (91, 68) y.shape:  (91,)
+best Pearson score: 0.21220210596536693
+best parameters:  {'C': 10, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** CN with imaging and ADNI svr regression ***
+X.shape:  (135, 2158) y.shape:  (135,)
+X.shape:  (135, 93) y.shape:  (135,)
+best Pearson score: 0.4304050016916933
+best parameters:  {'C': 0.1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with imaging and ADNI svr regression ***
+X.shape:  (196, 2158) y.shape:  (196,)
+X.shape:  (196, 120) y.shape:  (196,)
+best Pearson score: 0.46609552601257453
+best parameters:  {'C': 1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with imaging and ADNI svr regression ***
+X.shape:  (91, 2158) y.shape:  (91,)
+X.shape:  (91, 70) y.shape:  (91,)
+best Pearson score: 0.4709315977415024
+best parameters:  {'C': 0.1, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+
+Process finished with exit code 0
+
+
+pca 0.95
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with imaging data svr regression ***
+X.shape:  (135, 2156) y.shape:  (135,)
+X.shape:  (135, 110) y.shape:  (135,)
+best Pearson score: 0.3977187720532843
+best parameters:  {'C': 0.1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with imaging data svr regression ***
+X.shape:  (196, 2156) y.shape:  (196,)
+X.shape:  (196, 148) y.shape:  (196,)
+best Pearson score: 0.22027230853340188
+best parameters:  {'C': 1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with imaging data svr regression ***
+X.shape:  (91, 2156) y.shape:  (91,)
+X.shape:  (91, 80) y.shape:  (91,)
+best Pearson score: 0.13019790290916203
+best parameters:  {'C': 1, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** CN with imaging and ADNI svr regression ***
+X.shape:  (135, 2158) y.shape:  (135,)
+X.shape:  (135, 112) y.shape:  (135,)
+best Pearson score: 0.39106586013205324
+best parameters:  {'C': 0.1, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with imaging and ADNI svr regression ***
+X.shape:  (196, 2158) y.shape:  (196,)
+X.shape:  (196, 150) y.shape:  (196,)
+best Pearson score: 0.39928795721474886
+best parameters:  {'C': 0.1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with imaging and ADNI svr regression ***
+X.shape:  (91, 2158) y.shape:  (91,)
+X.shape:  (91, 82) y.shape:  (91,)
+best Pearson score: 0.437268499245326
+best parameters:  {'C': 0.1, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+
+Process finished with exit code 0
+
+rbf without pca
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with imaging data svr regression ***
+X.shape:  (135, 2156) y.shape:  (135,)
+X.shape:  (135, 91) y.shape:  (135,)
+best Pearson score: 0.444586857994153
+best parameters:  {'C': 1, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** MCI with imaging data svr regression ***
+X.shape:  (196, 2156) y.shape:  (196,)
+X.shape:  (196, 118) y.shape:  (196,)
+best Pearson score: 0.3254416126822241
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** AD with imaging data svr regression ***
+X.shape:  (91, 2156) y.shape:  (91,)
+X.shape:  (91, 68) y.shape:  (91,)
+best Pearson score: 0.23552786556990596
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** CN with imaging and ADNI svr regression ***
+X.shape:  (135, 2158) y.shape:  (135,)
+X.shape:  (135, 93) y.shape:  (135,)
+best Pearson score: 0.43983084807050693
+best parameters:  {'C': 1, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** MCI with imaging and ADNI svr regression ***
+X.shape:  (196, 2158) y.shape:  (196,)
+X.shape:  (196, 120) y.shape:  (196,)
+best Pearson score: 0.4626076942121415
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** AD with imaging and ADNI svr regression ***
+X.shape:  (91, 2158) y.shape:  (91,)
+X.shape:  (91, 70) y.shape:  (91,)
+best Pearson score: 0.46724559314310665
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+
+rbf pca 0.9
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with imaging data svr regression ***
+X.shape:  (135, 2156) y.shape:  (135,)
+best Pearson score: 0.05376199463092446
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** MCI with imaging data svr regression ***
+X.shape:  (196, 2156) y.shape:  (196,)
+best Pearson score: 0.15355607506713356
+best parameters:  {'C': 100, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** AD with imaging data svr regression ***
+X.shape:  (91, 2156) y.shape:  (91,)
+best Pearson score: 0.24407539732968042
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** CN with imaging and ADNI svr regression ***
+X.shape:  (135, 2158) y.shape:  (135,)
+best Pearson score: 0.0535887153520973
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** MCI with imaging and ADNI svr regression ***
+X.shape:  (196, 2158) y.shape:  (196,)
+best Pearson score: 0.15852587720686065
+best parameters:  {'C': 100, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** AD with imaging and ADNI svr regression ***
+X.shape:  (91, 2158) y.shape:  (91,)
+best Pearson score: 0.24640188413244357
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+
+rbf pca=0.8
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with imaging data svr regression ***
+X.shape:  (135, 2156) y.shape:  (135,)
+X.shape:  (135, 64) y.shape:  (135,)
+best Pearson score: 0.4328886923053599
+best parameters:  {'C': 0.01, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** MCI with imaging data svr regression ***
+X.shape:  (196, 2156) y.shape:  (196,)
+X.shape:  (196, 80) y.shape:  (196,)
+best Pearson score: 0.2697497115050349
+best parameters:  {'C': 100, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** AD with imaging data svr regression ***
+X.shape:  (91, 2156) y.shape:  (91,)
+X.shape:  (91, 51) y.shape:  (91,)
+best Pearson score: 0.12811575072226727
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** CN with imaging and ADNI svr regression ***
+X.shape:  (135, 2158) y.shape:  (135,)
+X.shape:  (135, 66) y.shape:  (135,)
+best Pearson score: 0.42702930305199643
+best parameters:  {'C': 0.1, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** MCI with imaging and ADNI svr regression ***
+X.shape:  (196, 2158) y.shape:  (196,)
+X.shape:  (196, 82) y.shape:  (196,)
+best Pearson score: 0.4200959291974331
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+*** AD with imaging and ADNI svr regression ***
+X.shape:  (91, 2158) y.shape:  (91,)
+X.shape:  (91, 53) y.shape:  (91,)
+best Pearson score: 0.4370946656527557
+best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+
+
+Process finished with exit code 0

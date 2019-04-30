@@ -156,6 +156,7 @@ def data_genetic():
     # # CN.drop(columns=['RID', 'DX_bl'], inplace=True)
     # CN.to_csv('./data_genetic/CN.csv', index=0)
 
+
 def dataAPOE3():
     df = pd.read_csv('./data/ADNI_Training_Q1.csv')
     bldata = df[df.VISCODE == 'bl'].copy()
@@ -199,6 +200,19 @@ def dataAPOE3():
     data.to_csv('./data_genetic/data_all_features.csv', index=0)
 
 
+def data_mri():
+    df = pd.read_csv('./data_genetic/baseline_data.csv')
+    df = df.dropna()
+    df.drop(
+        columns=['directory.id', 'Subject', 'Image.Data.ID', 'DX.bl', 'AGE', 'PTGENDER', 'PTEDUCAT', 'PTETHCAT',
+                 'PTRACCAT', 'APOE4', 'MMSE', 'imputed_genotype'], inplace=True)
+    # print(df)
+    data = pd.read_csv('./data_genetic/data_all_features.csv')
+    data.drop(columns=['TOMM40_A1', 'TOMM40_A2', 'APOE3'], inplace=True)  # (489,12)
+    data = pd.merge(data, df, how='inner', on='RID')  # (422,2162)
+    data.to_csv('./data_genetic/imaging_data.csv', index=0)
+
+
 if __name__ == '__main__':
     # preprocess()
     # data4classification()
@@ -228,4 +242,8 @@ if __name__ == '__main__':
     # AD_o.to_csv('./data_genetic/clf_AD.csv', index=0)
     # AD_e = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'deltaMMSE'])
     # AD_e.to_csv('./data_genetic/clf_AD_extra_data.csv', index=0)
-    dataAPOE3()
+    # dataAPOE3()
+    # data_mri()
+    data = pd.read_csv('./data_genetic/imaging_data.csv')
+    print(data.shape)
+
