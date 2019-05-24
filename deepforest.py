@@ -342,61 +342,6 @@ def roc_MCI():
     plt.show()
 
 
-def roc():
-    data = []
-    for file in files:
-        data = pd.read_csv('./data_genetic/%s.csv' % file)
-        y = data.pop('DECLINED').values
-        X = data.values
-        tprs = []
-        aucs = []
-        mean_fpr = np.linspace(0, 1, 100)
-        cv = StratifiedKFold(n_splits=5)
-
-        for train, test in cv.split(X, y):
-            df = CascadeForest(
-                estimators_config=[{'estimator_class': ExtraTreesRegressor,
-                                    'estimator_params': {'n_estimators': 1000,
-                                                         'min_samples_split': 0.1,
-                                                         'max_features': 1,
-                                                         'n_jobs': -1, }},
-                                   {'estimator_class': ExtraTreesRegressor,
-                                    'estimator_params': {'n_estimators': 1000,
-                                                         'min_samples_split': 0.1,
-                                                         'max_features': 'sqrt',
-                                                         'n_jobs': -1, }},
-                                   {'estimator_class': RandomForestRegressor,
-                                    'estimator_params': {'n_estimators': 1000,
-                                                         'min_samples_split': 0.1,
-                                                         'max_features': 1,
-                                                         'n_jobs': -1, }},
-                                   {'estimator_class': RandomForestRegressor,
-                                    'estimator_params': {'n_estimators': 1000,
-                                                         'min_samples_split': 0.1,
-                                                         'max_features': 'sqrt',
-                                                         'n_jobs': -1, }}])
-            df.fit(X[train], y[train])
-            probas_ = df.predict_proba(X[test])
-            fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
-            tprs.append(interp(mean_fpr, fpr, tpr))
-            tprs[-1][0] = 0.0
-            roc_auc = auc(fpr, tpr)
-            aucs.append(roc_auc)
-
-        plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', alpha=.8)
-        mean_tpr = np.mean(tprs, axis=0)
-        mean_tpr[-1] = 1.0
-        mean_auc = auc(mean_fpr, mean_tpr)
-        plt.plot(mean_fpr, mean_tpr, label=r'Mean ROC (AUC=%0.3f)' % mean_auc, lw=2, alpha=.8)
-        plt.xlim([0, 1])
-        plt.ylim([0, 1])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('ROC Curve of MCI')
-        plt.legend(loc='lower right', fontsize=10)
-    plt.show()
-
-
 if __name__ == '__main__':
     # roc_whole()
     # roc_df()

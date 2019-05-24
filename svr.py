@@ -9,21 +9,6 @@ from sklearn.decomposition import PCA
 
 
 def cal_pearson(x, y):
-    # n = len(x)
-    # sum_x = sum(x)
-    # sum_y = sum(y)
-    # # sum x_list、y_list
-    # sum_xy = np.sum(np.multiply(x, y))
-    # # x_list square、y_list square
-    # sum_x2 = sum([pow(i, 2) for i in x])
-    # sum_y2 = sum([pow(j, 2) for j in y])
-    # molecular = sum_xy - (float(sum_x) * float(sum_y) / n)
-    # # calculate
-    # denominator = np.sqrt((sum_x2 - float(sum_x ** 2) / n) * (sum_y2 - float(sum_y ** 2) / n))
-    # if denominator != 0:
-    #     return molecular / denominator
-    # else:
-    #     return 0
     r_row, p_value = pearsonr(x, y)
     return r_row
 
@@ -37,7 +22,7 @@ def svr(data, group):
     params = [{'kernel': ['poly'], 'degree': [1], 'gamma': [1], 'C': [0.1, 1, 10, 100],
                'coef0': [0, 0.1, 1, 10, 100]}, ]
     # params = {'kernel': ['rbf'], 'gamma': [100, 0.1, 1, 10], 'C': [0.1, 0.01, 1, 10, 100, 1000]}
-    cv = RepeatedKFold(n_splits=10, n_repeats=100)
+    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
     scoring = make_scorer(cal_pearson)
     grid = GridSearchCV(svr, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
 
@@ -49,19 +34,19 @@ def svr(data, group):
 def svr_with_pca(data, group):
     print('*** %s svr regression ***' % group)
     y = data.pop('deltaMMSE').values
-    X = MinMaxScaler().fit_transform(data.values)
+    X = data.values
     print('X.shape: ', X.shape, 'y.shape: ', y.shape)
     X_basic = X[:, :-2150].copy()
     X_img = X[:, -2150:].copy()
-    X_img = PCA(0.8).fit_transform(X_img)
+    X_img = PCA(4).fit_transform(X_img)
     X = np.hstack((X_basic, X_img))
     X = MinMaxScaler().fit_transform(X)
     print('X.shape: ', X.shape, 'y.shape: ', y.shape)
     svr = SVR()
-    # params = [{'kernel': ['poly'], 'degree': [1], 'gamma': [1], 'C': [0.1, 1, 10, 100],
-    #            'coef0': [0, 0.1, 1, 10, 100]}, ]
-    params = {'kernel': ['rbf'], 'gamma': [100, 0.1, 1, 10], 'C': [0.1, 0.01, 1, 10, 100, 1000]}
-    cv = RepeatedKFold(n_splits=5, n_repeats=5, random_state=9)
+    params = [{'kernel': ['poly'], 'degree': [1], 'gamma': [1], 'C': [0.1, 1, 10, 100],
+               'coef0': [0, 0.1, 1, 10, 100]}, ]
+    # params = {'kernel': ['rbf'], 'gamma': [100, 0.1, 1, 10], 'C': [0.1, 0.01, 1, 10, 100, 1000]}
+    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
     scoring = make_scorer(cal_pearson)
     grid = GridSearchCV(svr, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
 
@@ -124,30 +109,131 @@ def svr_with_imaging_data():
     # # overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
     # # svr(overall_ADNI, 'overall with ADNI features')
 
-    # with imaging data
-    CN_imaging = df[df.DX_bl == 1].copy()
-    CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    svr_with_pca(CN_img, 'CN with imaging data')
-    MCI_imaging = df[df.DX_bl == 2].copy()
-    MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    svr_with_pca(MCI_img, 'MCI with imaging data')
-    AD_imaging = df[df.DX_bl == 3].copy()
-    AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    svr_with_pca(AD_img, 'AD with imaging data')
-    # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # svr(all_o, 'overall with original data')
+    # # with imaging data
+    # CN_imaging = df[df.DX_bl == 1].copy()
+    # CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr_with_pca(CN_img, 'CN with imaging data')
+    # MCI_imaging = df[df.DX_bl == 2].copy()
+    # MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr_with_pca(MCI_img, 'MCI with imaging data')
+    # AD_imaging = df[df.DX_bl == 3].copy()
+    # AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr_with_pca(AD_img, 'AD with imaging data')
+    # # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # # svr(all_o, 'overall with original data')
+    #
+    # # with imaging and ADNI features
+    # CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # svr_with_pca(CN_img, 'CN with imaging and ADNI')
+    # MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # svr_with_pca(MCI_img, 'MCI with imaging and ADNI')
+    # AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # svr_with_pca(AD_img, 'AD with imaging and ADNI')
+    # # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # # svr(all_o, 'overall with original data')
 
-    # with imaging and ADNI features
-    CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    svr_with_pca(CN_img, 'CN with imaging and ADNI')
-    MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    svr_with_pca(MCI_img, 'MCI with imaging and ADNI')
-    AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    svr_with_pca(AD_img, 'AD with imaging and ADNI')
-    # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # svr(all_o, 'overall with original data')
+    # basic clinical features + imaging feature
+    data = df.iloc[:, 0:12].copy()
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    # original data
+    MCI = data[data.DX_bl == 1].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    # arg_maxs = [1707, 1657, 1553, 1128, 1353, 730, 655, 1378, 1278]
+    arg_maxs = [1707, 1553, 730, 73, 1758]
+    # arg_maxs = [986, 886, 836, 2006, 2004, 211, 1861, 1854, 86]
+    # arg_maxs = [986, 2006, 1904, 2080]
+    # arg_maxs = [2055, 981, 986, 843, 2068, 218, 5, 893, 2061]
+    # arg_maxs = [2055, 981, 218, 5, 211, 830, 81, 1005, 86, 880]
+    for i in range(len(arg_maxs)):
+        MCI_o['img_feature{}'.format(i)] = imaging.iloc[:, arg_maxs[i]]
+        # MCI_o = pd.concat([MCI_o, imaging.iloc[:, arg_maxs[i]]], axis=1, join='inner')
+        # print(MCI_o)
+        print(imaging.iloc[:, arg_maxs[i]].name)
+        svr(MCI_o.copy(), 'MCI with imaging data , i={}'.format(i))
+    '''
+    *** CN with imaging data svr regression ***   i=6
+    X.shape:  (135, 15) y.shape:  (135,)
+    best Pearson score: 0.646379837436449
+    best parameters:  {'C': 1, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
+    *** MCI with imaging data svr regression ***  i=4  drop similar features
+    X.shape:  (135, 13) y.shape:  (135,)
+    best Pearson score: 0.6821452555434724
+    best parameters:  {'C': 100, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+    FreeSurfer.convexity..mean.2011     0.6112787016848616
+    geodesic.depth..skew.2006           0.6261463486011841
+    FreeSurfer.convexity..skew.1008     0.6509310175612549
+    mean.curvature..MAD.1034            0.6735983115952879
+    FreeSurfer.convexity..skew.2012     0.6821452555434724
+
+    *** MCI with imaging data svr regression ***  i=4
+    X.shape:  (196, 13) y.shape:  (196,)
+    best Pearson score: 0.591354766462601
+    best parameters:  {'C': 10, 'coef0': 0, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
+    *** MCI with imaging data svr regression ***  i=3  drop similar features
+    X.shape:  (196, 12) y.shape:  (196,)
+    best Pearson score: 0.6237654659135236
+    best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+    FreeSurfer.thickness..25..1015      0.5603951297011807
+    FreeSurfer.thickness..25..2009      0.5867884424007108
+    FreeSurfer.thickness..median.2007   0.5984695826505688
+    Volume.2008                         0.6237654659135236
+
+    *** AD with imaging data svr regression ***  i=1
+    X.shape:  (91, 10) y.shape:  (91,)
+    best Pearson score: 0.6911095054771033
+    best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
+    *** MCI with imaging data svr regression ***  i=3  drop similar features
+    X.shape:  (91, 12) y.shape:  (91,)
+    best Pearson score: 0.7024158312734484
+    best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
+    Volume.1008                         0.6890056980824936
+    FreeSurfer.thickness..25..1009      0.6911095054771033
+    mean.curvature..75..1025            0.7014605688168164
+    area.1008                           0.7024158312734484
+    '''
+
+
+# 422 samples
+def img_pca():
+    df = pd.read_csv('./data_genetic/imaging_data.csv')
+    # basic clinical features + imaging feature
+    data = df.iloc[:, 0:12].copy()
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    # original data
+    MCI = data[data.DX_bl == 3].copy()
+    MCI = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    y = MCI.pop('deltaMMSE').values
+
+    # PCA
+    # arg_max = [1707, 1657, 1553, 1128, 1353, 730, 655, 1378, 1278, 1978]
+    # arg_max = [986, 886, 836, 2006, 2004, 211, 1861, 1854, 86]
+    arg_max = [2055, 981, 986, 843, 2068, 218, 5, 893, 2061]
+    X_img = imaging.iloc[MCI.index, arg_max].values
+    X_img = PCA(3).fit_transform(X_img)
+    X = np.hstack((MCI.values, X_img))
+    print('X.shape: ', X.shape, 'y.shape: ', y.shape)
+
+    X = MinMaxScaler().fit_transform(X)
+    svr = SVR()
+    params = [{'kernel': ['poly'], 'degree': [1], 'gamma': [1], 'C': [0.1, 1, 10, 100],
+               'coef0': [0, 0.1, 1, 10, 100]}, ]
+    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
+    scoring = make_scorer(cal_pearson)
+    grid = GridSearchCV(svr, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
+
+    grid.fit(X, y)
+    print('best Pearson score:', grid.best_score_)
+    print('best parameters: ', grid.best_params_, '\n')
 
 
 if __name__ == "__main__":
-    svr_with_clinical_data()
+    # svr_with_clinical_data()
     # svr_with_imaging_data()
+
+    # PCA
+    # df = pd.read_csv('./data_genetic/imaging_data.csv')
+    # MCI = df[df.DX_bl == 3].copy()
+    # MCI = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF','DECLINED'])
+    # svr_with_pca(MCI,'MCI with PCA')
+
+    img_pca()

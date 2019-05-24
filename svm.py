@@ -58,14 +58,16 @@ def gridsearch(data, group):
     print('*** %s svm classification***' % group)
     y = data.pop('DECLINED').values
     X = MinMaxScaler().fit_transform(data.values)
-    clf = SVC(kernel='poly', degree=1, class_weight={0: 1, 1: 2}, gamma=1, probability=True)
-    cv = StratifiedKFold(n_splits=10, random_state=9)
+    print('X.shape: ', X.shape, 'y.shape: ', y.shape)
+    clf = SVC(kernel='poly', degree=1, gamma=1, probability=True)
+    # cv = StratifiedKFold(n_splits=10, random_state=9)
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=9)
     params = {
         'C': [0.1, 1, 10],
         'coef0': [0, 0.1, 1, 10, 100],
+        'class_weight': [{0: 1, 1: 2}, {0: 1, 1: 1}, 'balanced']
     }
     scoring = make_scorer(roc_auc_score, needs_proba=True)
-    # scores = cross_val_score(mlp, scoring=scoring, X=X, y=y, cv=cv)
     grid = GridSearchCV(clf, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
     grid.fit(X, y)
     print('best AUROC score:', grid.best_score_)
@@ -218,25 +220,53 @@ def roc():
 
 def roc_with_imaging_data():
     df = pd.read_csv('./data_genetic/imaging_data.csv')
-    # data = df.iloc[:, 0:12].copy()
-    # # original data
-    # MCI = data[data.DX_bl == 2].copy()
-    # MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
-    # gridsearch(MCI_o, 'MCI with basic data')
+    data = df.iloc[:, 0:12].copy()
+    # original data
+    MCI = data[data.DX_bl == 2].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    gridsearch(MCI_o, 'MCI with basic data')
     """
-*** MCI with basic data svm classification***
-best AUROC score: 0.6410714285714285
-best parameters:  {'C': 1, 'coef0': 100} 
+    *** MCI with basic data svm classification***
+    X.shape:  (196, 6) y.shape:  (196,)
+    best AUROC score: 0.6162591575091576
+    best parameters:  {'C': 1, 'class_weight': 'balanced', 'coef0': 1} 
     """
-    # with imaging data
-    MCI_imaging = df[df.DX_bl == 2].copy()
-    MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
-    gridsearch(MCI_img, 'MCI with imaging data')
+    # with ADNI features
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    gridsearch(MCI_ADNI, 'MCI with ADNI features')
+    '''
+    *** MCI with ADNI features svm classification***
+    X.shape:  (196, 8) y.shape:  (196,)
+    best AUROC score: 0.786098901098901
+    best parameters:  {'C': 10, 'class_weight': {0: 1, 1: 2}, 'coef0': 10} 
+    '''
 
+    # basic clinical features + imaging feature
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    MCI = data[data.DX_bl == 2].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    # arg_maxs = [986, 886, 836, 2006, 2004, 211, 1861, 1854, 86]
+    arg_maxs = [986, 2006, 1904, 2080]
+    # arg_maxs = [886, 986, 836, 1903, 1011, 1904, 2004, 1854, 86]
+    for i in range(len(arg_maxs)):
+        MCI_o['img_feature{}'.format(i)] = imaging.iloc[:, arg_maxs[i]]
+        # MCI_o = pd.concat([MCI_o, imaging.iloc[:, arg_maxs[i]]], axis=1, join='inner')
+        gridsearch(MCI_o.copy(), 'MCI with selected imaging features')
+    '''
+    *** MCI with selected imaging features svm classification***
+    X.shape:  (196, 12) y.shape:  (196,)
+    best AUROC score: 0.8124198717948719
+    best parameters:  {'C': 10, 'class_weight': {0: 1, 1: 1}, 'coef0': 10}
+    '''
+
+    # # with imaging data
+    # MCI_imaging = df[df.DX_bl == 2].copy()
+    # MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    # gridsearch(MCI_img, 'MCI with imaging data')
     """
-*** MCI with imaging data svm classification***
-best AUROC score: 0.5271520146520147
-best parameters:  {'C': 1, 'coef0': 0} 
+    *** MCI with imaging data svm classification***
+    best AUROC score: 0.5271520146520147
+    best parameters:  {'C': 1, 'coef0': 0} 
     """
 
 
@@ -251,8 +281,8 @@ if __name__ == "__main__":
     # clfmci = pd.read_csv('./data_genetic/clf_MCI_extra_data.csv')
     # cv(clfmci, 'MCI with ADNI data')
     # roc()  # deep forest for mci roc
-    # roc_with_imaging_data()
-    clfmci = pd.read_csv('./data_genetic/clf_MCI.csv')
-    cv(clfmci, 'MCI with original data')
-    clfmci = pd.read_csv('./data_genetic/clf_MCI_extra_data.csv')
-    cv(clfmci, 'MCI with ADNI data')
+    roc_with_imaging_data()
+    # clfmci = pd.read_csv('./data_genetic/clf_MCI.csv')
+    # cv(clfmci, 'MCI with original data')
+    # clfmci = pd.read_csv('./data_genetic/clf_MCI_extra_data.csv')
+    # cv(clfmci, 'MCI with ADNI data')
