@@ -264,3 +264,72 @@ best parameters:  {'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
 
 
 Process finished with exit code 0
+
+
+
+
+
+
+
+10 fold 100 repeats
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svr.py
+*** CN with basic data svr regression ***
+X.shape:  (135, 6) y.shape:  (135,)
+best Pearson score: 0.5787810504903841
+best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with basic data svr regression ***
+X.shape:  (196, 6) y.shape:  (196,)
+best Pearson score: 0.11723022765559529
+best parameters:  {'C': 0.1, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with basic data svr regression ***
+X.shape:  (91, 6) y.shape:  (91,)
+best Pearson score: 0.30311749695331514
+best parameters:  {'C': 100, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** CN with ADNI features svr regression ***
+X.shape:  (135, 8) y.shape:  (135,)
+best Pearson score: 0.5796287483796834
+best parameters:  {'C': 1, 'coef0': 0, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** MCI with ADNI features svr regression ***
+X.shape:  (196, 8) y.shape:  (196,)
+best Pearson score: 0.521784212347747
+best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+*** AD with ADNI features svr regression ***
+X.shape:  (91, 8) y.shape:  (91,)
+best Pearson score: 0.6850344592667368
+best parameters:  {'C': 100, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+FreeSurfer.convexity..mean.2011
+geodesic.depth..skew.2006
+FreeSurfer.convexity..skew.1008
+mean.curvature..MAD.1034
+FreeSurfer.convexity..skew.2012
+*** CN with imaging data , i=4 svr regression ***
+X.shape:  (135, 13) y.shape:  (135,)
+best Pearson score: 0.675736975639805
+best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+FreeSurfer.thickness..25..1015
+FreeSurfer.thickness..25..2009
+FreeSurfer.thickness..mean.2007
+Volume.2008
+*** MCI with imaging data , i=3 svr regression ***
+X.shape:  (196, 12) y.shape:  (196,)
+best Pearson score: 0.6206667810864458
+best parameters:  {'C': 100, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+Volume.1008
+FreeSurfer.thickness..25..1009
+mean.curvature..75..1025
+area.1008
+*** AD with imaging data , i=3 svr regression ***
+X.shape:  (91, 12) y.shape:  (91,)
+best Pearson score: 0.7113255709025533
+best parameters:  {'C': 100, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
+
+
+Process finished with exit code 0
