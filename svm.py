@@ -2,15 +2,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import interp
-from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, RandomForestRegressor
-from sklearn.metrics import roc_curve, auc, make_scorer
-from sklearn.model_selection import StratifiedKFold, GridSearchCV, cross_val_score, train_test_split, \
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_curve, auc, make_scorer, precision_recall_curve, average_precision_score
+from sklearn.model_selection import StratifiedKFold, GridSearchCV, train_test_split, \
     RepeatedStratifiedKFold
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import SVC
-from sklearn.metrics import roc_auc_score
+from sklearn.svm import SVC, LinearSVC
 
-from gcforest import GCForest, CascadeForest
+from gcforest import GCForest
 
 
 def roccurve():
@@ -29,6 +31,7 @@ def roccurve():
     for i in range(len(arg_max)):
         MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
     data = [MCI_o, MCI_ADNI, MCI_img]
+    labels = ['Basic clinical features', 'With ADNI features', 'With ADNI and MRI features']
     classifiers = [
         SVC(kernel='poly', C=1, class_weight='balanced', gamma=1, degree=1, coef0=1, probability=True),
         SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
@@ -55,15 +58,179 @@ def roccurve():
         mean_tpr = np.mean(tprs, axis=0)
         mean_tpr[-1] = 1.0
         mean_auc = auc(mean_fpr, mean_tpr)
-        plt.plot(mean_fpr, mean_tpr, label=r'Mean ROC (AUC=%0.3f)' % mean_auc, lw=2, alpha=.8)
+        plt.plot(mean_fpr, mean_tpr, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc), lw=2, alpha=.8)
         plt.xlim([0, 1])
         plt.ylim([0, 1])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('ROC Curve of MCI')
+        plt.xlabel('FPR')
+        plt.ylabel('TPR')
+        plt.title('ROC Curve')
         plt.legend(loc='lower right', fontsize=10)
         index += 1
     plt.show()
+
+
+def roccurve_comparison():
+    df = pd.read_csv('./data_genetic/imaging_data.csv')
+    data = df.iloc[:, 0:12].copy()
+    # original data
+    MCI = data[data.DX_bl == 2].copy()
+    # with ADNI features
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    # basic clinical features + imaging feature
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    arg_max = [986, 2006, 1904, 2080]
+    for i in range(len(arg_max)):
+        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
+    data = [MCI_ADNI, MCI_img]
+
+    labels = ['COM_MRI', 'COMPASS', 'Logistic Regression', 'Random Forest', 'Gaussian']
+    classifiers = [
+        # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
+        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma=1, degree=1, coef0=0.1, probability=True),
+        LinearSVC(class_weight={0: 4, 1: 1}),
+        LogisticRegression(solver='liblinear'),
+        RandomForestClassifier(),
+        GaussianProcessClassifier(random_state=0)]
+    index = 0
+    for classifier in classifiers:
+        d = data[1].copy()
+        y = d.pop('DECLINED').values
+        X = MinMaxScaler(feature_range=(0, 1)).fit_transform(d.values)
+        tprs = []
+        aucs = []
+        mean_fpr = np.linspace(0, 1, 100)
+        cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=9)
+
+        for train, test in cv.split(X, y):
+            if hasattr(classifier, 'decision_function'):
+                probas_ = classifier.fit(X[train], y[train]).decision_function(X[test])
+                fpr, tpr, thresholds = roc_curve(y[test], probas_)
+            else:
+                probas_ = classifier.fit(X[train], y[train]).predict_proba(X[test])
+                fpr, tpr, thresholds = roc_curve(y[test], probas_[:, 1])
+            tprs.append(interp(mean_fpr, fpr, tpr))
+            tprs[-1][0] = 0.0
+            roc_auc = auc(fpr, tpr)
+            aucs.append(roc_auc)
+
+        plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', alpha=.8)
+        mean_tpr = np.mean(tprs, axis=0)
+        mean_tpr[-1] = 1.0
+        mean_auc = auc(mean_fpr, mean_tpr)
+        plt.plot(mean_fpr, mean_tpr, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc), lw=2, alpha=.8)
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.xlabel('FPR')
+        plt.ylabel('TPR')
+        plt.title('ROC Curve')
+        plt.legend(loc='lower right', fontsize=10)
+        index += 1
+    plt.show()
+
+
+def pre_rec_curve():
+    df = pd.read_csv('./data_genetic/imaging_data.csv')
+    data = df.iloc[:, 0:12].copy()
+    # original data
+    MCI = data[data.DX_bl == 2].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    # with ADNI features
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+
+    # basic clinical features + imaging feature
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    arg_max = [986, 2006, 1904, 2080]
+    for i in range(len(arg_max)):
+        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
+    data = [MCI_o, MCI_ADNI, MCI_img]
+
+    labels = ['Basic clinical features', 'With ADNI features', 'With ADNI and MRI features']
+    classifiers = [
+        SVC(kernel='poly', C=1, class_weight='balanced', gamma=1, degree=1, coef0=1, probability=True),
+        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
+        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma=1, degree=1, coef0=0.1, probability=True)]
+
+    mean_auc = [0.542099111085515, 0.6942346098001678, 0.7305958083989638]
+
+    index = 0
+    for d in data:
+        y = d.pop('DECLINED').values
+        X = MinMaxScaler(feature_range=(0, 1)).fit_transform(d.values)
+        aucs = []
+        svc = classifiers[index]
+        # cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
+
+        # for train, test in cv.split(X, y):
+        #     probas_ = svc.fit(X[train], y[train]).decision_function(X[test])
+        #     # precision, recall, thresholds = precision_recall_curve(y[test], probas_)
+        #     # plt.step(recall, precision, color='b', alpha=0.2)
+        #     pre_rec_auc = average_precision_score(y[test], probas_)
+        #     aucs.append(pre_rec_auc)
+        # mean_auc = np.mean(aucs)
+
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=15)
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=18)
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=27)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=34)
+        yscore = svc.fit(X_train, y_train).decision_function(X_test)
+        precision, recall, thresholds = precision_recall_curve(y_test, yscore)
+        auc = average_precision_score(y_test, yscore)
+        print(auc)
+        plt.plot(recall, precision, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc[index]), lw=2, alpha=.8)
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('Precision-Recall Curve')
+        plt.legend(loc='lower right', fontsize=10)
+        index += 1
+    plt.show()
+
+
+def pre_rec_curve_comparison():
+    df = pd.read_csv('./data_genetic/imaging_data.csv')
+    data = df.iloc[:, 0:12].copy()
+    # original data
+    MCI = data[data.DX_bl == 2].copy()
+    # with ADNI features
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    # basic clinical features + imaging feature
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    arg_max = [986, 2006, 1904, 2080]
+    for i in range(len(arg_max)):
+        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
+    data = [MCI_ADNI, MCI_img]
+
+    labels = ['COM_MRI', 'COMPASS', 'Logistic Regression', 'Random Forest', 'Gaussian']
+
+    classifiers = [
+        # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
+        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma=1, degree=1, coef0=0.1, probability=True),
+        LinearSVC(class_weight={0: 4, 1: 1}),
+        LogisticRegression(solver='liblinear'),
+        RandomForestClassifier(n_estimators=10),
+        GaussianProcessClassifier(random_state=0)]
+    index = 0
+    for classifier in classifiers:
+        d = data[1].copy()
+        y = d.pop('DECLINED').values
+        X = MinMaxScaler(feature_range=(0, 1)).fit_transform(d.values)
+        aucs = []
+        cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
+        for train, test in cv.split(X, y):
+            if hasattr(classifier, 'decision_function'):
+                probas_ = classifier.fit(X[train], y[train]).decision_function(X[test])
+                pre_rec_auc = average_precision_score(y[test], probas_)
+            else:
+                probas_ = classifier.fit(X[train], y[train]).predict_proba(X[test])
+                pre_rec_auc = average_precision_score(y[test], probas_[:, 1])
+            aucs.append(pre_rec_auc)
+        mean_auc = np.mean(aucs)
+        print(labels[index], mean_auc)
+        index += 1
 
 
 def gridsearch(data, group):
@@ -71,8 +238,29 @@ def gridsearch(data, group):
     y = data.pop('DECLINED').values
     X = MinMaxScaler().fit_transform(data.values)
     print('X.shape: ', X.shape, 'y.shape: ', y.shape)
-    clf = SVC(kernel='poly', degree=1, gamma=1, probability=True)
+    # clf = SVC(kernel='poly', degree=1, gamma=1, probability=True)
+    clf = SVC(probability=True)
     # cv = StratifiedKFold(n_splits=10, random_state=9)
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
+    # params = [{'kernel': ['poly'], 'degree': [2, 3], 'gamma': [0.1, 'auto'], 'C': [0.1, 1, 10],
+    #            'class_weight': [{0: 1, 1: 2}, {0: 1, 1: 1}, 'balanced'],
+    #            'coef0': [0, 0.1, 1, 10, 100]}]
+    params = {'kernel': ['rbf'], 'gamma': [0.1, 1, 'auto'], 'C': [0.1, 100, 1, 10],
+              'class_weight': [{0: 1, 1: 2}, {0: 1, 1: 1}, 'balanced']}
+    scoring = make_scorer(roc_auc_score, needs_proba=True)
+    grid = GridSearchCV(clf, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
+    grid.fit(X, y)
+    print('best AUROC score:', grid.best_score_)
+    print('best parameters: ', grid.best_params_, '\n')
+    # pd.DataFrame(grid.cv_results_).to_csv('./clf%s.csv' % group, index=0)
+
+
+def spearman(data, group):
+    print('*** %s svm classification***' % group)
+    y = data.pop('DECLINED').values
+    X = MinMaxScaler().fit_transform(data.values)
+    print('X.shape: ', X.shape, 'y.shape: ', y.shape)
+    clf = SVC(kernel='poly', degree=1, gamma=1, probability=True)
     cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
     params = {
         'C': [0.1, 1, 10],
@@ -84,7 +272,6 @@ def gridsearch(data, group):
     grid.fit(X, y)
     print('best AUROC score:', grid.best_score_)
     print('best parameters: ', grid.best_params_, '\n')
-    # pd.DataFrame(grid.cv_results_).to_csv('./clf%s.csv' % group, index=0)
 
 
 def df_svc_grid(X, y):
@@ -270,7 +457,11 @@ def roc_with_imaging_data():
 
 
 if __name__ == "__main__":
-    roccurve()
+    # roccurve()
+    # roccurve_comparison()
+    # pre_rec_curve()
+    # pre_rec_curve_comparison()
+
     # clfmci = pd.read_csv('./data_genetic/clf_MCI.csv')
     # gridsearch(clfmci, 'MCI with original data')
     # clfmci = pd.read_csv('./data_genetic/clf_MCI_extra_data.csv')
@@ -285,3 +476,19 @@ if __name__ == "__main__":
     # cv(clfmci, 'MCI with original data')
     # clfmci = pd.read_csv('./data_genetic/clf_MCI_extra_data.csv')
     # cv(clfmci, 'MCI with ADNI data')
+
+    # with MRI features
+    df = pd.read_csv('./data_genetic/imaging_data.csv')
+    data = df.iloc[:, 0:12].copy()
+    # original data
+    MCI = data[data.DX_bl == 2].copy()
+    # with ADNI features
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    # basic clinical features + imaging feature
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    arg_max = [986, 2006, 1904, 2080]
+    for i in range(len(arg_max)):
+        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
+    # data = [MCI_ADNI, MCI_img]
+    gridsearch(MCI_img, 'MCI_img')

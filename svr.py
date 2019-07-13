@@ -1,15 +1,20 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import RepeatedKFold, GridSearchCV
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import SVR
+from sklearn.svm import SVR, LinearSVR
 from sklearn.decomposition import PCA
 
 
 def cal_pearson(x, y):
     r_row, p_value = pearsonr(x, y)
+    return r_row
+
+
+def cal_spearman(x, y):
+    r_row, p_value = spearmanr(x, y)
     return r_row
 
 
@@ -19,11 +24,14 @@ def svr(data, group):
     X = MinMaxScaler().fit_transform(data.values)
     print('X.shape: ', X.shape, 'y.shape: ', y.shape)
     svr = SVR()
-    params = [{'kernel': ['poly'], 'degree': [1], 'gamma': [1], 'C': [0.1, 1, 10, 100],
-               'coef0': [0, 0.1, 1, 10, 100]}, ]
-    # params = {'kernel': ['rbf'], 'gamma': [100, 0.1, 1, 10], 'C': [0.1, 0.01, 1, 10, 100, 1000]}
+    # svr = LinearSVR()
+    params = [{'kernel': ['poly'], 'degree': [3], 'gamma': [0.1, 'auto'], 'C': [0.1, 1, 10],
+               'coef0': [0, 0.1, 1, 10, 100]}]
+    # params = {'kernel': ['rbf'], 'gamma': [0.1, 1, 10], 'C': [0.1, 100, 1, 10]}
+    # params = {'C': [0.1, 1, 10]}
     cv = RepeatedKFold(n_splits=10, n_repeats=100, random_state=9)
     scoring = make_scorer(cal_pearson)
+    # scoring = make_scorer(cal_pearson)
     grid = GridSearchCV(svr, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
 
     grid.fit(X, y)
@@ -88,24 +96,24 @@ def svr_with_imaging_data():
     data = df.iloc[:, 0:12].copy()
     # # original data
     CN = data[data.DX_bl == 1].copy()
-    # CN_o = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    CN_o = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
     # svr(CN_o, 'CN with basic data')
     MCI = data[data.DX_bl == 2].copy()
-    # MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
     # svr(MCI_o, 'MCI with basic data')
     AD = data[data.DX_bl == 3].copy()
-    # AD_o = AD.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    AD_o = AD.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
     # svr(AD_o, 'AD with basic data')
     # # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
     # # svr(all_o, 'overall with original data')
     # #
-    # # with ADNI features
-    # CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # svr(CN_ADNI, 'CN with ADNI features')
-    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # svr(MCI_ADNI, 'MCI with ADNI features')
-    # AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # svr(AD_ADNI, 'AD with ADNI features')
+    # with ADNI features
+    CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    svr(CN_ADNI, 'CN with ADNI features')
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    svr(MCI_ADNI, 'MCI with ADNI features')
+    AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    svr(AD_ADNI, 'AD with ADNI features')
     # # overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
     # # svr(overall_ADNI, 'overall with ADNI features')
 
@@ -170,7 +178,7 @@ def svr_with_imaging_data():
     svr(AD_img.copy(), 'AD with imaging data , i={}'.format(i))
 
     '''
-    *** MCI with imaging data svr regression ***  i=4  drop similar features
+    *** CN with imaging data svr regression ***  i=4  drop similar features
     X.shape:  (135, 13) y.shape:  (135,)
     best Pearson score: 0.6821452555434724
     best parameters:  {'C': 100, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
@@ -189,7 +197,7 @@ def svr_with_imaging_data():
     FreeSurfer.thickness..median.2007   0.5984695826505688
     Volume.2008                         0.6237654659135236
 
-    *** MCI with imaging data svr regression ***  i=3  drop similar features
+    *** AD with imaging data svr regression ***  i=3  drop similar features
     X.shape:  (91, 12) y.shape:  (91,)
     best Pearson score: 0.7024158312734484
     best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 

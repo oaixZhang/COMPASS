@@ -4,16 +4,18 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import make_scorer, roc_auc_score
 from sklearn.model_selection import RepeatedKFold, cross_validate, RepeatedStratifiedKFold
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVR
 
 from svr import cal_pearson
 
 
 def lr(data, group):
-    print('*** %s linear regression ***' % group)
-    # data.dropna(axis=0, how='any', inplace=True)
+    print('*** %s svr regression ***' % group)
     y = data.pop('deltaMMSE').values
     X = MinMaxScaler().fit_transform(data.values)
+    print('X.shape: ', X.shape, 'y.shape: ', y.shape)
     lr = LinearRegression()
+    # lr = SVR(kernel='poly',degree=3,gamma='auto',coef0=100,C=1)
     cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
     scoring = make_scorer(cal_pearson)
     results = cross_validate(lr, X, y, scoring=scoring, cv=cv, return_train_score=False)
@@ -21,153 +23,95 @@ def lr(data, group):
     print('mean score:', mscore, '\n')
     return mscore
 
-
-def lr_with_old_data():
-    data = pd.read_csv('./data_genetic/data_all_features.csv')
-    data.pop('APOE3')
-    # original data
-    CN = data[data.DX_bl == 1].copy()
-    CN_o = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(CN_o, 'CN with original data')
-    MCI = data[data.DX_bl == 2].copy()
-    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(MCI_o, 'MCI with original data')
-    AD = data[data.DX_bl == 3].copy()
-    AD_o = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(AD_o, 'AD with original data')
-    all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(all_o, 'overall with original data')
-
-    # with genetic features
-    CN_genetic = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(CN_genetic, 'CN with genetic features')
-
-    MCI_genetic = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(MCI_genetic, 'MCI with genetic features')
-
-    AD_genetic = AD.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(AD_genetic, 'AD with genetic features')
-
-    overall_genetic = data.drop(columns=['RID', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    lr(overall_genetic, 'overall with genetic features')
-
-    # # with ADNI features
-    # CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # lr(CN_ADNI, 'CN with ADNI features')
-    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # lr(MCI_ADNI, 'MCI with ADNI features')
-    # AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # lr(AD_ADNI, 'AD with ADNI features')
-    # overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # lr(overall_ADNI, 'overall with ADNI features')
-
-
 # 422 samples
 def lr_with_imaging_data():
     df = pd.read_csv('./data_genetic/imaging_data.csv')
-    # data = df.iloc[:, 0:12].copy()
+    data = df.iloc[:, 0:12].copy()
     # # original data
-    # CN = data[data.DX_bl == 1].copy()
-    # CN_o = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # lr(CN_o, 'CN with basic data')
-    # MCI = data[data.DX_bl == 2].copy()
-    # MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # lr(MCI_o, 'MCI with basic data')
-    # AD = data[data.DX_bl == 3].copy()
-    # AD_o = AD.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # lr(AD_o, 'AD with basic data')
-    # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # svr(all_o, 'overall with original data')
-    #
-    # # with ADNI features
-    # CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # lr(CN_ADNI, 'CN with ADNI features')
-    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # lr(MCI_ADNI, 'MCI with ADNI features')
-    # AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # lr(AD_ADNI, 'AD with ADNI features')
-    # # overall_ADNI = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'DECLINED'])
-    # # svr(overall_ADNI, 'overall with ADNI features')
+    CN = data[data.DX_bl == 1].copy()
+    CN_o = CN.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(CN_o, 'CN with basic data')
+    MCI = data[data.DX_bl == 2].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(MCI_o, 'MCI with basic data')
+    AD = data[data.DX_bl == 3].copy()
+    AD_o = AD.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
+    # svr(AD_o, 'AD with basic data')
 
-    # # with imaging data
-    # CN_imaging = df[df.DX_bl == 1].copy()
-    # CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # lr(CN_img, 'CN with imaging data')
-    # MCI_imaging = df[df.DX_bl == 2].copy()
-    # MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # lr(MCI_img, 'MCI with imaging data')
-    # AD_imaging = df[df.DX_bl == 3].copy()
-    # AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # lr(AD_img, 'AD with imaging data')
-    # # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # # svr(all_o, 'overall with original data')
-    #
-    # # with imaging and ADNI features
-    # CN_img = CN_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # lr(CN_img, 'CN with imaging and ADNI')
-    # MCI_img = MCI_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # lr(MCI_img, 'MCI with imaging and ADNI')
-    # AD_img = AD_imaging.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # lr(AD_img, 'AD with imaging and ADNI')
-    # # all_o = data.drop(columns=['RID', 'TOMM40_A1', 'TOMM40_A2', 'ADNI_MEM', 'ADNI_EF', 'DECLINED'])
-    # # svr(all_o, 'overall with original data')
+    # with ADNI features
+    CN_ADNI = CN.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    lr(CN_ADNI, 'CN with ADNI features')
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    lr(MCI_ADNI, 'MCI with ADNI features')
+    AD_ADNI = AD.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    lr(AD_ADNI, 'AD with ADNI features')
 
     # basic clinical features + imaging feature
-    data = df.iloc[:, 0:12].copy()
     imaging = df.iloc[:, 12:].copy()  # imaging data
-    # original data
-    MCI = data[data.DX_bl == 1].copy()
-    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
-    # arg_maxs = [986, 886, 836, 2006, 2004, 211, 1861, 1854, 86]
-    arg_maxs = [1707, 1657, 1553, 1128, 1353, 730, 655, 1378, 1278]
-    # arg_maxs = [2055, 981, 986, 843, 2068, 218, 5, 893, 2061]
-    for i in range(9):
-        MCI_o['img_feature{}'.format(i)] = imaging.iloc[:, arg_maxs[i]]
-        lr(MCI_o.copy(), 'MCI with imaging data')
+    CN_img = CN.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    arg_max_CN = [1707, 1553, 730, 73, 1758]
+    for i in range(len(arg_max_CN)):
+        CN_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max_CN[i]]
+        # MCI_o = pd.concat([MCI_o, imaging.iloc[:, arg_maxs[i]]], axis=1, join='inner')
+        # print(MCI_o)
+        print(imaging.iloc[:, arg_max_CN[i]].name)
+    lr(CN_img.copy(), 'CN with imaging data , i={}'.format(i))
 
+    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    arg_max_MCI = [986, 2006, 1904, 2080]
+    for i in range(len(arg_max_MCI)):
+        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max_MCI[i]]
+        print(imaging.iloc[:, arg_max_MCI[i]].name)
+    lr(MCI_img.copy(), 'MCI with imaging data , i={}'.format(i))
+
+    AD_img = AD.drop(columns=['RID', 'DX_bl', 'DECLINED'])
+    arg_max_AD = [2055, 981, 218, 5]
+    for i in range(len(arg_max_AD)):
+        AD_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max_AD[i]]
+        print(imaging.iloc[:, arg_max_AD[i]].name)
+    lr(AD_img.copy(), 'AD with imaging data , i={}'.format(i))
 
 '''
 E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/linearRegression.py
-*** MCI with imaging data linear regression ***
-mean score: 0.4094733945324768 
+*** CN with ADNI features svr regression ***
+X.shape:  (135, 8) y.shape:  (135,)
+mean score: 0.570184925806665 
 
-*** MCI with imaging data linear regression ***
-mean score: 0.4034395455069453 
+*** MCI with ADNI features svr regression ***
+X.shape:  (196, 8) y.shape:  (196,)
+mean score: 0.5276307415541506 
 
-*** MCI with imaging data linear regression ***
-mean score: 0.39786758411823264 
+*** AD with ADNI features svr regression ***
+X.shape:  (91, 8) y.shape:  (91,)
+mean score: 0.6618837333168466 
 
-*** MCI with imaging data linear regression ***
-mean score: 0.42798320542985147 
+FreeSurfer.convexity..mean.2011
+geodesic.depth..skew.2006
+FreeSurfer.convexity..skew.1008
+mean.curvature..MAD.1034
+FreeSurfer.convexity..skew.2012
+*** CN with imaging data , i=4 svr regression ***
+X.shape:  (135, 13) y.shape:  (135,)
+mean score: 0.6730664366762718 
 
-*** MCI with imaging data linear regression ***
-mean score: 0.4442587149416045 
+FreeSurfer.thickness..25..1015
+FreeSurfer.thickness..25..2009
+FreeSurfer.thickness..mean.2007
+Volume.2008
+*** MCI with imaging data , i=3 svr regression ***
+X.shape:  (196, 12) y.shape:  (196,)
+mean score: 0.6148423877235911 
 
-*** MCI with imaging data linear regression ***
-mean score: 0.4513993032220508 
+Volume.1008
+FreeSurfer.thickness..25..1009
+mean.curvature..75..1025
+area.1008
+*** AD with imaging data , i=3 svr regression ***
+X.shape:  (91, 12) y.shape:  (91,)
+mean score: 0.7064654815841857 
 
 
-
-with ADNI
-E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/linearRegression.py
-*** MCI with imaging data linear regression ***
-mean score: 0.5760988311373493 
-
-*** MCI with imaging data linear regression ***
-mean score: 0.5763838036481591 
-
-*** MCI with imaging data linear regression ***
-mean score: 0.571192419496677 
-
-*** MCI with imaging data linear regression ***
-mean score: 0.5850854903207536 
-
-*** MCI with imaging data linear regression ***
-mean score: 0.5945797965211572 
-
-*** MCI with imaging data linear regression ***
-mean score: 0.590723002637133
-
+Process finished with exit code 0
 '''
 
 
@@ -230,5 +174,5 @@ def select_features4ROC():
 
 if __name__ == "__main__":
     # select_features4ROC()
-    # lr_with_imaging_data()
-    select_features()
+    lr_with_imaging_data()
+    # select_features()
