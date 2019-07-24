@@ -87,10 +87,11 @@ def roccurve_comparison():
     labels = ['COM_MRI', 'COMPASS', 'Logistic Regression', 'Random Forest', 'Gaussian']
     classifiers = [
         # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
-        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma=1, degree=1, coef0=0.1, probability=True),
-        LinearSVC(class_weight={0: 4, 1: 1}),
+        SVC(kernel='rbf', C=10, class_weight={0: 1, 1: 2}, gamma=0.1, probability=True),
+        # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma='auto', degree=3, coef0=100, probability=True),
+        LinearSVC(class_weight={0: 2, 1: 1}),
         LogisticRegression(solver='liblinear'),
-        RandomForestClassifier(),
+        RandomForestClassifier(n_estimators=100),
         GaussianProcessClassifier(random_state=0)]
     index = 0
     for classifier in classifiers:
@@ -129,66 +130,6 @@ def roccurve_comparison():
     plt.show()
 
 
-def pre_rec_curve():
-    df = pd.read_csv('./data_genetic/imaging_data.csv')
-    data = df.iloc[:, 0:12].copy()
-    # original data
-    MCI = data[data.DX_bl == 2].copy()
-    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
-    # with ADNI features
-    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
-
-    # basic clinical features + imaging feature
-    imaging = df.iloc[:, 12:].copy()  # imaging data
-    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
-    arg_max = [986, 2006, 1904, 2080]
-    for i in range(len(arg_max)):
-        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
-    data = [MCI_o, MCI_ADNI, MCI_img]
-
-    labels = ['Basic clinical features', 'With ADNI features', 'With ADNI and MRI features']
-    classifiers = [
-        SVC(kernel='poly', C=1, class_weight='balanced', gamma=1, degree=1, coef0=1, probability=True),
-        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
-        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma=1, degree=1, coef0=0.1, probability=True)]
-
-    mean_auc = [0.542099111085515, 0.6942346098001678, 0.7305958083989638]
-
-    index = 0
-    for d in data:
-        y = d.pop('DECLINED').values
-        X = MinMaxScaler(feature_range=(0, 1)).fit_transform(d.values)
-        aucs = []
-        svc = classifiers[index]
-        # cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
-
-        # for train, test in cv.split(X, y):
-        #     probas_ = svc.fit(X[train], y[train]).decision_function(X[test])
-        #     # precision, recall, thresholds = precision_recall_curve(y[test], probas_)
-        #     # plt.step(recall, precision, color='b', alpha=0.2)
-        #     pre_rec_auc = average_precision_score(y[test], probas_)
-        #     aucs.append(pre_rec_auc)
-        # mean_auc = np.mean(aucs)
-
-        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=15)
-        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=18)
-        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=27)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=34)
-        yscore = svc.fit(X_train, y_train).decision_function(X_test)
-        precision, recall, thresholds = precision_recall_curve(y_test, yscore)
-        auc = average_precision_score(y_test, yscore)
-        print(auc)
-        plt.plot(recall, precision, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc[index]), lw=2, alpha=.8)
-        plt.xlim([0, 1])
-        plt.ylim([0, 1])
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title('Precision-Recall Curve')
-        plt.legend(loc='lower right', fontsize=10)
-        index += 1
-    plt.show()
-
-
 def pre_rec_curve_comparison():
     df = pd.read_csv('./data_genetic/imaging_data.csv')
     data = df.iloc[:, 0:12].copy()
@@ -208,10 +149,11 @@ def pre_rec_curve_comparison():
 
     classifiers = [
         # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
-        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma=1, degree=1, coef0=0.1, probability=True),
-        LinearSVC(class_weight={0: 4, 1: 1}),
+        SVC(kernel='rbf', C=10, class_weight={0: 1, 1: 2}, gamma=0.1, probability=True),
+        # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma='auto', degree=3, coef0=100, probability=True),
+        LinearSVC(class_weight={0: 2, 1: 1}),
         LogisticRegression(solver='liblinear'),
-        RandomForestClassifier(n_estimators=10),
+        RandomForestClassifier(n_estimators=100),
         GaussianProcessClassifier(random_state=0)]
     index = 0
     for classifier in classifiers:
@@ -233,6 +175,72 @@ def pre_rec_curve_comparison():
         index += 1
 
 
+def pre_rec_curve():
+    df = pd.read_csv('./data_genetic/imaging_data.csv')
+    data = df.iloc[:, 0:12].copy()
+    # original data
+    MCI = data[data.DX_bl == 2].copy()
+    MCI_o = MCI.drop(columns=['RID', 'DX_bl', 'ADNI_MEM', 'ADNI_EF', 'deltaMMSE'])
+    # with ADNI features
+    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+
+    # basic clinical features + imaging feature
+    imaging = df.iloc[:, 12:].copy()  # imaging data
+    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    arg_max = [986, 2006, 1904, 2080]
+    for i in range(len(arg_max)):
+        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
+    # data = [MCI_o, MCI_ADNI, MCI_img]
+    data = [MCI_ADNI, MCI_img]
+
+    # labels = ['Basic clinical features', 'With ADNI features', 'With ADNI and MRI features']
+    labels = ['With ADNI features', 'With ADNI and MRI features']
+    classifiers = [
+        # SVC(kernel='poly', C=1, class_weight='balanced', gamma=1, degree=1, coef0=1, probability=True),
+        SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
+        # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma=1, degree=1, coef0=0.1, probability=True),
+        SVC(kernel='rbf', C=10, class_weight={0: 1, 1: 2}, gamma=0.1, probability=True)]
+
+    # mean_auc = [0.542099111085515, 0.6942346098001678, 0.7305958083989638]
+    mean_auc = [0.6942346098001678, 0.7305958083989638]
+
+    index = 0
+    for d in data:
+        y = d.pop('DECLINED').values
+        X = MinMaxScaler(feature_range=(0, 1)).fit_transform(d.values)
+        aucs = []
+        svc = classifiers[index]
+        # cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
+
+        # for train, test in cv.split(X, y):
+        #     probas_ = svc.fit(X[train], y[train]).decision_function(X[test])
+        #     # precision, recall, thresholds = precision_recall_curve(y[test], probas_)
+        #     # plt.step(recall, precision, color='b', alpha=0.2)
+        #     pre_rec_auc = average_precision_score(y[test], probas_)
+        #     aucs.append(pre_rec_auc)
+        # mean_auc = np.mean(aucs)
+
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=15)
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=18)
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5,random_state=27)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=18)
+        yscore = svc.fit(X_train, y_train).decision_function(X_test)
+        precision, recall, thresholds = precision_recall_curve(y_test, yscore)
+        auc = average_precision_score(y_test, yscore)
+        print(auc)
+        # plt.plot(recall, precision, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc[index]), lw=2, alpha=.8)
+        plt.step(recall, precision, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc[index]), lw=2, alpha=.5)
+        print(recall)
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('Precision-Recall Curve')
+        plt.legend(loc='lower right', fontsize=10)
+        index += 1
+    plt.show()
+
+
 def gridsearch(data, group):
     print('*** %s svm classification***' % group)
     y = data.pop('DECLINED').values
@@ -241,18 +249,35 @@ def gridsearch(data, group):
     # clf = SVC(kernel='poly', degree=1, gamma=1, probability=True)
     clf = SVC(probability=True)
     # cv = StratifiedKFold(n_splits=10, random_state=9)
-    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
-    # params = [{'kernel': ['poly'], 'degree': [2, 3], 'gamma': [0.1, 'auto'], 'C': [0.1, 1, 10],
-    #            'class_weight': [{0: 1, 1: 2}, {0: 1, 1: 1}, 'balanced'],
-    #            'coef0': [0, 0.1, 1, 10, 100]}]
-    params = {'kernel': ['rbf'], 'gamma': [0.1, 1, 'auto'], 'C': [0.1, 100, 1, 10],
-              'class_weight': [{0: 1, 1: 2}, {0: 1, 1: 1}, 'balanced']}
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=9)
+    params = [{'kernel': ['poly'], 'degree': [3], 'gamma': [0.1, 'auto'], 'C': [0.1, 1, 10],
+               'class_weight': [{0: 1, 1: 2}, {0: 1, 1: 1}, 'balanced'],
+               'coef0': [0, 0.1, 1, 10, 100]}]
+    # params = {'kernel': ['rbf'], 'gamma': [0.1, 1, 'auto'], 'C': [0.1, 100, 1, 10],
+    #           'class_weight': [{0: 1, 1: 2}, {0: 1, 1: 1}, 'balanced']}
     scoring = make_scorer(roc_auc_score, needs_proba=True)
     grid = GridSearchCV(clf, params, scoring=scoring, cv=cv, return_train_score=False, iid=False)
     grid.fit(X, y)
     print('best AUROC score:', grid.best_score_)
     print('best parameters: ', grid.best_params_, '\n')
     # pd.DataFrame(grid.cv_results_).to_csv('./clf%s.csv' % group, index=0)
+
+
+'''
+
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svm.py
+*** MCI_img svm classification***
+X.shape:  (196, 12) y.shape:  (196,)
+best AUROC score: 0.8286286630036629
+best parameters:  {'C': 10, 'class_weight': {0: 1, 1: 1}, 'coef0': 100, 'degree': 3, 'gamma': 'auto', 'kernel': 'poly'}
+
+E:\Miniconda3\python.exe E:/PycharmProjects/COMPASS/svm.py
+*** MCI_img svm classification***
+X.shape:  (196, 12) y.shape:  (196,)
+best AUROC score: 0.819996336996337
+best parameters:  {'C': 10, 'class_weight': {0: 1, 1: 2}, 'gamma': 0.1, 'kernel': 'rbf'} 
+
+'''
 
 
 def spearman(data, group):
@@ -459,7 +484,7 @@ def roc_with_imaging_data():
 if __name__ == "__main__":
     # roccurve()
     # roccurve_comparison()
-    # pre_rec_curve()
+    pre_rec_curve()
     # pre_rec_curve_comparison()
 
     # clfmci = pd.read_csv('./data_genetic/clf_MCI.csv')
@@ -477,18 +502,18 @@ if __name__ == "__main__":
     # clfmci = pd.read_csv('./data_genetic/clf_MCI_extra_data.csv')
     # cv(clfmci, 'MCI with ADNI data')
 
-    # with MRI features
-    df = pd.read_csv('./data_genetic/imaging_data.csv')
-    data = df.iloc[:, 0:12].copy()
-    # original data
-    MCI = data[data.DX_bl == 2].copy()
-    # with ADNI features
-    MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
-    # basic clinical features + imaging feature
-    imaging = df.iloc[:, 12:].copy()  # imaging data
-    MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
-    arg_max = [986, 2006, 1904, 2080]
-    for i in range(len(arg_max)):
-        MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
-    # data = [MCI_ADNI, MCI_img]
-    gridsearch(MCI_img, 'MCI_img')
+    # # with MRI features
+    # df = pd.read_csv('./data_genetic/imaging_data.csv')
+    # data = df.iloc[:, 0:12].copy()
+    # # original data
+    # MCI = data[data.DX_bl == 2].copy()
+    # # with ADNI features
+    # MCI_ADNI = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    # # basic clinical features + imaging feature
+    # imaging = df.iloc[:, 12:].copy()  # imaging data
+    # MCI_img = MCI.drop(columns=['RID', 'DX_bl', 'deltaMMSE'])
+    # arg_max = [986, 2006, 1904, 2080]
+    # for i in range(len(arg_max)):
+    #     MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
+    # # data = [MCI_ADNI, MCI_img]
+    # gridsearch(MCI_img, 'MCI_img')
