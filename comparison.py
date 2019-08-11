@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import RepeatedKFold, GridSearchCV
-from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestRegressor
 
@@ -13,7 +13,7 @@ def regmlp(data, group):
     y = data.pop('deltaMMSE').values
     X = MinMaxScaler().fit_transform(data.values)
     print('X.shape: ', X.shape, 'y.shape: ', y.shape)
-    mlp = MLPClassifier(activation='relu', solver='sgd', max_iter=2000, learning_rate_init=0.01)
+    mlp = MLPRegressor(activation='relu', solver='sgd', max_iter=2000, learning_rate_init=0.01)
     cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=9)
     params = {
         'hidden_layer_sizes': [(50,), (20, 10), (50, 10), (100,)],

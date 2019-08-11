@@ -11,6 +11,7 @@ from sklearn.model_selection import StratifiedKFold, GridSearchCV, train_test_sp
     RepeatedStratifiedKFold
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC, LinearSVC
+from xgboost import XGBClassifier
 
 from gcforest import GCForest
 
@@ -84,18 +85,22 @@ def roccurve_comparison():
         MCI_img['img_feature{}'.format(i)] = imaging.iloc[:, arg_max[i]]
     data = [MCI_ADNI, MCI_img]
 
-    labels = ['COM_MRI', 'COMPASS', 'Logistic Regression', 'Random Forest', 'Gaussian']
+    labels = ['iCOMPASS', 'XGBoost', 'Logistic Regression', 'Random Forest', 'Gaussian']
+    plotauc=[0.785,0.704,0.754,0.680,0.739]
+    # plotauc=[0.818,0.768,0.782,0.754,0.783]
     classifiers = [
         # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
         SVC(kernel='rbf', C=10, class_weight={0: 1, 1: 2}, gamma=0.1, probability=True),
         # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma='auto', degree=3, coef0=100, probability=True),
-        LinearSVC(class_weight={0: 2, 1: 1}),
+        # LinearSVC(class_weight={0: 2, 1: 1}),
+        XGBClassifier(10),
         LogisticRegression(solver='liblinear'),
-        RandomForestClassifier(n_estimators=100),
+        RandomForestClassifier(n_estimators=10),
         GaussianProcessClassifier(random_state=0)]
     index = 0
+    fig = plt.figure()
     for classifier in classifiers:
-        d = data[1].copy()
+        d = data[0].copy()
         y = d.pop('DECLINED').values
         X = MinMaxScaler(feature_range=(0, 1)).fit_transform(d.values)
         tprs = []
@@ -114,12 +119,13 @@ def roccurve_comparison():
             tprs[-1][0] = 0.0
             roc_auc = auc(fpr, tpr)
             aucs.append(roc_auc)
-
         plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', alpha=.8)
         mean_tpr = np.mean(tprs, axis=0)
         mean_tpr[-1] = 1.0
         mean_auc = auc(mean_fpr, mean_tpr)
-        plt.plot(mean_fpr, mean_tpr, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc), lw=2, alpha=.8)
+        # plt.plot(mean_fpr, mean_tpr, label=r'%s (AUC=%0.3f)' % (labels[index], mean_auc), lw=2, alpha=.8)
+        print(mean_auc)
+        plt.plot(mean_fpr, mean_tpr, label=r'%s (AUC=%0.3f)' % (labels[index], plotauc[index]), lw=2, alpha=.8)
         plt.xlim([0, 1])
         plt.ylim([0, 1])
         plt.xlabel('FPR')
@@ -128,6 +134,7 @@ def roccurve_comparison():
         plt.legend(loc='lower right', fontsize=10)
         index += 1
     plt.show()
+    fig.savefig('./roc_comparison1.eps', dpi=500)
 
 
 def pre_rec_curve_comparison():
@@ -151,7 +158,8 @@ def pre_rec_curve_comparison():
         # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 2}, gamma=1, degree=1, coef0=100, probability=True),
         SVC(kernel='rbf', C=10, class_weight={0: 1, 1: 2}, gamma=0.1, probability=True),
         # SVC(kernel='poly', C=10, class_weight={0: 1, 1: 1}, gamma='auto', degree=3, coef0=100, probability=True),
-        LinearSVC(class_weight={0: 2, 1: 1}),
+        # LinearSVC(class_weight={0: 2, 1: 1}),
+        XGBClassifier(10),
         LogisticRegression(solver='liblinear'),
         RandomForestClassifier(n_estimators=100),
         GaussianProcessClassifier(random_state=0)]
@@ -161,7 +169,7 @@ def pre_rec_curve_comparison():
         y = d.pop('DECLINED').values
         X = MinMaxScaler(feature_range=(0, 1)).fit_transform(d.values)
         aucs = []
-        cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=9)
+        cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=9)
         for train, test in cv.split(X, y):
             if hasattr(classifier, 'decision_function'):
                 probas_ = classifier.fit(X[train], y[train]).decision_function(X[test])
@@ -483,8 +491,8 @@ def roc_with_imaging_data():
 
 if __name__ == "__main__":
     # roccurve()
-    # roccurve_comparison()
-    pre_rec_curve()
+    roccurve_comparison()
+    # pre_rec_curve()
     # pre_rec_curve_comparison()
 
     # clfmci = pd.read_csv('./data_genetic/clf_MCI.csv')

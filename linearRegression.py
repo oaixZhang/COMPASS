@@ -16,7 +16,7 @@ def lr(data, group):
     print('X.shape: ', X.shape, 'y.shape: ', y.shape)
     lr = LinearRegression()
     # lr = SVR(kernel='poly',degree=3,gamma='auto',coef0=100,C=1)
-    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=9)
+    cv = RepeatedKFold(n_splits=10, n_repeats=100)
     scoring = make_scorer(cal_pearson)
     results = cross_validate(lr, X, y, scoring=scoring, cv=cv, return_train_score=False)
     mscore = results['test_score'].mean()
