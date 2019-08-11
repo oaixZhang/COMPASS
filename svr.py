@@ -177,36 +177,6 @@ def svr_with_imaging_data():
         print(imaging.iloc[:, arg_max_AD[i]].name)
     svr(AD_img.copy(), 'AD with imaging data , i={}'.format(i))
 
-    '''
-    *** CN with imaging data svr regression ***  i=4  drop similar features
-    X.shape:  (135, 13) y.shape:  (135,)
-    best Pearson score: 0.6821452555434724
-    best parameters:  {'C': 100, 'coef0': 10, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
-    FreeSurfer.convexity..mean.2011     0.6112787016848616
-    geodesic.depth..skew.2006           0.6261463486011841
-    FreeSurfer.convexity..skew.1008     0.6509310175612549
-    mean.curvature..MAD.1034            0.6735983115952879
-    FreeSurfer.convexity..skew.2012     0.6821452555434724
-
-    *** MCI with imaging data svr regression ***  i=3  drop similar features
-    X.shape:  (196, 12) y.shape:  (196,)
-    best Pearson score: 0.6237654659135236
-    best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
-    FreeSurfer.thickness..25..1015      0.5603951297011807
-    FreeSurfer.thickness..25..2009      0.5867884424007108
-    FreeSurfer.thickness..median.2007   0.5984695826505688
-    Volume.2008                         0.6237654659135236
-
-    *** AD with imaging data svr regression ***  i=3  drop similar features
-    X.shape:  (91, 12) y.shape:  (91,)
-    best Pearson score: 0.7024158312734484
-    best parameters:  {'C': 100, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
-    Volume.1008                         0.6890056980824936
-    FreeSurfer.thickness..25..1009      0.6911095054771033
-    mean.curvature..75..1025            0.7014605688168164
-    area.1008                           0.7024158312734484
-    '''
-
 
 # 422 samples
 def img_pca():
@@ -242,33 +212,6 @@ def img_pca():
     print('best Pearson score:', grid.best_score_)
     print('best parameters: ', grid.best_params_, '\n')
 
-
-'''
-CN pca =4
-X.shape:  (135, 12) y.shape:  (135,)
-best Pearson score: 0.6118877875444588
-best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
-pca = 5  
-X.shape:  (135, 13) y.shape:  (135,)
-best Pearson score: 0.6022417297152556
-best parameters:  {'C': 10, 'coef0': 0.1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
-MCI pca=3
-X.shape:  (196, 11) y.shape:  (196,)
-best Pearson score: 0.6266372261407923
-best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'}
-pca=4 
-X.shape:  (196, 12) y.shape:  (196,)
-best Pearson score: 0.6190105601540308
-best parameters:  {'C': 10, 'coef0': 0, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
-AD pca=3
-X.shape:  (91, 11) y.shape:  (91,)
-best Pearson score: 0.6947878616442724
-best parameters:  {'C': 10, 'coef0': 100, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
-pca = 4
-X.shape:  (91, 12) y.shape:  (91,)
-best Pearson score: 0.6878011877966744
-best parameters:  {'C': 10, 'coef0': 1, 'degree': 1, 'gamma': 1, 'kernel': 'poly'} 
-'''
 
 if __name__ == "__main__":
     # svr_with_clinical_data()

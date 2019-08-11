@@ -29,7 +29,7 @@ def clfmlp(data, group):
     print('*** %s MLP classification***' % group)
     y = data.pop('DECLINED').values
     X = MinMaxScaler().fit_transform(data.values)
-    mlp = MLPClassifier(activation='tanh', solver='sgd', learning_rate='adaptive', max_iter=2000, tol=0.001,
+    mlp = MLPRegressor(activation='tanh', solver='sgd', learning_rate='adaptive', max_iter=2000, tol=0.001,
                         learning_rate_init=0.01)
     cv = RepeatedKFold(n_splits=5, n_repeats=5, random_state=9)
     params = {
